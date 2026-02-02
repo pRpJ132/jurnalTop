@@ -198,12 +198,15 @@ class _LoginscreenState extends State<Loginscreen> {
         response = await ApiClient.get("settings/user-info");
         if (response.statusCode == 200) {
           data = await jsonDecode(response.body);
+          print(data);
           await UserStorage.clearAll();
           await UserStorage.saveUserInfo(
             photoUrl: data["photo"],
             fullName: data["full_name"],
             groupName: data["groups"][0]["name"],
             id: data["student_id"].toInt(),
+            topcoins: data["gaming_points"][0]["points"].toInt(),
+            topgems: data["gaming_points"][1]["points"].toInt(),
           );
           Navigator.pushAndRemoveUntil(
             context,
@@ -218,7 +221,7 @@ class _LoginscreenState extends State<Loginscreen> {
           toastification.show(
             context: context,
             title: Text(data["message"]),
-            autoCloseDuration: const Duration(seconds: 2),
+            autoCloseDuration: const Duration(seconds: 4),
             style: ToastificationStyle.fillColored,
             type: ToastificationType.error,
           );
@@ -231,9 +234,9 @@ class _LoginscreenState extends State<Loginscreen> {
         toastification.show(
           context: context,
           title: Text(data[0]["message"]),
-          autoCloseDuration: const Duration(seconds: 2),
+          autoCloseDuration: const Duration(seconds: 4),
           style: ToastificationStyle.fillColored,
-          type: ToastificationType.error,
+          type: ToastificationType.warning,
         );
       } else {
         final data = await jsonDecode(response.body);
@@ -243,7 +246,7 @@ class _LoginscreenState extends State<Loginscreen> {
         toastification.show(
           context: context,
           title: Text(data["message"]),
-          autoCloseDuration: const Duration(seconds: 2),
+          autoCloseDuration: const Duration(seconds: 4),
           style: ToastificationStyle.fillColored,
           type: ToastificationType.error,
         );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:my_app/screens/view/login_screen.dart';
+import 'package:my_app/screens/widgets/custom_drawer.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/user_storage.dart';
 
@@ -12,11 +14,26 @@ class Mainscreen extends StatefulWidget {
 
 class _MainscreenState extends State<Mainscreen> {
   String nameFull = "";
+  String groupName = "";
+  int topcoins = 0;
+  int topgems = 0;
+  String devicePlatform = "";
+  String deviceOsVersion = "";
 
   Future<void> initUserData() async {
     final name = await UserStorage.getFullName() ?? "Tamik :)";
+    final group = await UserStorage.getGroupName() ?? "Guest";
+    final coins = await UserStorage.getTopCoins() ?? 0;
+    final gems = await UserStorage.getTopGems() ?? 0;
+    final platform = await UserStorage.getDevicePlatform() ?? "Unknown";
+    final osVersion = await UserStorage.getDeviceOsVersion() ?? "Unknown";
     setState(() {
       nameFull = name;
+      groupName = group;
+      topcoins = coins;
+      topgems = gems;
+      devicePlatform = platform;
+      deviceOsVersion = osVersion;
     });
   }
 
@@ -30,6 +47,7 @@ class _MainscreenState extends State<Mainscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF9AC9C0),
+      drawer: CustomDrawer(),
       appBar: AppBar(
         backgroundColor: const Color(0xFFEFEFEF),
         elevation: 0,
@@ -39,10 +57,31 @@ class _MainscreenState extends State<Mainscreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                nameFull,
+                "Группа: $groupName",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.black, fontSize: 18),
+                style: const TextStyle(color: Colors.black, fontSize: 15),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: const Color.fromARGB(255, 216, 216, 216),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset('assets/top-money.svg', height: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    "${topcoins + topgems}",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.black, fontSize: 15),
+                  ),
+                ],
               ),
             ),
           ],
@@ -62,9 +101,43 @@ class _MainscreenState extends State<Mainscreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(child: Column(children: [
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 17.0,
+                left: 17.0,
+                right: 17.0,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                width: double.infinity,
+                height: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 18.0),
+                        child: Text(
+                          "Домашние задание",
+                          style: TextStyle(color: Colors.black, fontSize: 21),
+                        ),
+                      ),
+                      Divider(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
-        )),
+        ),
+      ),
     );
   }
 }
