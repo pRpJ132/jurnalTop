@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/screens/view/login_screen.dart';
-import 'package:my_app/screens/widgets/custom_drawer.dart';
+import 'package:my_app/screens/widgets/homework_menu.dart';
+import 'package:my_app/screens/widgets/menu_drawer.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/user_storage.dart';
 
@@ -110,30 +111,7 @@ class _MainscreenState extends State<Mainscreen> {
                 left: 17.0,
                 right: 17.0,
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                width: double.infinity,
-                height: MediaQuery.of(context).size.width,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 18.0),
-                        child: Text(
-                          "Домашние задание",
-                          style: TextStyle(color: Colors.black, fontSize: 21),
-                        ),
-                      ),
-                      Divider(),
-                    ],
-                  ),
-                ),
-              ),
+              child: HomeworkMenu(),
             ),
           ],
         ),
