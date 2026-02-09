@@ -1,7 +1,28 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-class HomeworkMenu extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:my_app/network/api_client.dart';
+
+class HomeworkMenu extends StatefulWidget {
   const HomeworkMenu({super.key});
+
+  @override
+  State<HomeworkMenu> createState() => _HomeworkMenuState();
+}
+
+class _HomeworkMenuState extends State<HomeworkMenu> {
+  int homeworkConfirm = 0;
+  int homeworkCurrent = 0;
+  int homeworkUnderReview = 0;
+  int homeworkExpired = 0;
+  int homeworkAll = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    LoadHomework();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +47,7 @@ class HomeworkMenu extends StatelessWidget {
             Divider(),
             Center(
               child: Text(
-                "121",
+                homeworkAll.toString(),
                 style: TextStyle(
                   fontSize: 47,
                   color: Color(0xFF188194),
@@ -51,21 +72,12 @@ class HomeworkMenu extends StatelessWidget {
                     spacing: 20,
                     runSpacing: 18,
                     children: [
-                      widgetTextRow('0', "Текущие", color: Colors.deepPurple),
-                      widgetTextRow('109', "Проверено", color: Color(0xFF188194)),
-                      widgetTextRow('10', "На проверке", color: Color.fromARGB(255, 237, 216, 27)),
-                      widgetTextRow('2', "Просрочено", color: Colors.red),
+                      widgetTextRow(homeworkCurrent.toString(), "Текущие", color: Colors.deepPurple),
+                      widgetTextRow(homeworkConfirm.toString(), "Проверено", color: Color(0xFF188194)),
+                      widgetTextRow(homeworkUnderReview.toString(), "На проверке", color: Color.fromARGB(255, 237, 216, 27)),
+                      widgetTextRow(homeworkExpired.toString(), "Просрочено", color: Colors.red),
                     ],
                   ),
-                  // child: Column(
-                  //   crossAxisAlignment: CrossAxisAlignment.start,
-                  //   children: [
-                  //     widgetTextRow('0', "Текущие", color: Colors.deepPurple),
-                  //     widgetTextRow('109', "Проверено", color: Color(0xFF188194)),
-                  //     widgetTextRow('10', "На проверке", color: Color.fromARGB(255, 237, 216, 27)),
-                  //     widgetTextRow('2', "Просрочено", color: Colors.red),
-                  //   ],
-                  // )
                 ),
               ),
             ),
@@ -74,6 +86,21 @@ class HomeworkMenu extends StatelessWidget {
       ),
     );
   }
+
+  void LoadHomework() async {
+    final response = await ApiClient.get("count/homework");
+    if (response.statusCode == 200) {
+      final data = await jsonDecode(response.body);
+      setState(() {
+        homeworkConfirm = data[0]["counter"].toInt();
+        homeworkCurrent = data[1]["counter"].toInt();
+        homeworkExpired = data[2]["counter"].toInt();
+        homeworkUnderReview = data[3]["counter"].toInt();
+        homeworkAll = data[5]["counter"].toInt();
+      });
+    }
+  }
+
 }
 
 Widget widgetTextRow(

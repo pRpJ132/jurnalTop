@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/screens/view/login_screen.dart';
 import 'package:my_app/screens/widgets/homework_menu.dart';
 import 'package:my_app/screens/widgets/menu_drawer.dart';
+import 'package:my_app/screens/widgets/reiting_info_menu.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/user_storage.dart';
 
@@ -103,17 +104,19 @@ class _MainscreenState extends State<Mainscreen> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 17.0,
-                left: 17.0,
-                right: 17.0,
-              ),
-              child: HomeworkMenu(),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.only(
+            top: 17.0,
+            left: 17.0,
+            right: 17.0,
+          ),
+          child: Column(
+            children: [
+              HomeworkMenu(),
+              SizedBox(height: 25,),
+              ReitingInfoMenu()
+            ],
+          ),
         ),
       ),
     );

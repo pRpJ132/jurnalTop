@@ -198,7 +198,6 @@ class _LoginscreenState extends State<Loginscreen> {
         response = await ApiClient.get("settings/user-info");
         if (response.statusCode == 200) {
           data = await jsonDecode(response.body);
-          print(data);
           await UserStorage.clearAll();
           await UserStorage.saveUserInfo(
             photoUrl: data["photo"],
