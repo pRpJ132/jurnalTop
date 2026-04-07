@@ -11,9 +11,7 @@ class HomeworkScreen extends StatefulWidget {
   State<HomeworkScreen> createState() => _HomeworkScreenState();
 }
 
-class _HomeworkScreenState extends State<HomeworkScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _HomeworkScreenState extends State<HomeworkScreen> {
 
   final Map<int, List<dynamic>> homeworkByStatus = {
     0: [],
@@ -29,20 +27,11 @@ class _HomeworkScreenState extends State<HomeworkScreen>
     3: false,
   };
 
-  static const List<int?> _tabStatuses = [null, 3, 2, 1, 0];
-
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
     _loadHomework();
     _loadCounts();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadHomework() async {
@@ -81,13 +70,13 @@ class _HomeworkScreenState extends State<HomeworkScreen>
   Color _getStatusColor(int status) {
     switch (status) {
       case 0:
-        return const Color(0xFFD32F2F);
+        return const Color.fromARGB(255, 211, 47, 47);
       case 1:
-        return const Color(0xFF2E7D32);
+        return const Color.fromARGB(255, 46, 125, 50);
       case 2:
-        return const Color(0xFFE65100);
+        return const Color.fromARGB(255, 223, 203, 19);
       case 3:
-        return const Color(0xFF1565C0);
+        return const Color.fromARGB(255, 21, 101, 192);
       default:
         return Colors.grey;
     }
@@ -192,13 +181,6 @@ class _HomeworkScreenState extends State<HomeworkScreen>
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: color.withOpacity(0.4), width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.06),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: IntrinsicHeight(
           child: Row(
@@ -281,7 +263,7 @@ class _HomeworkScreenState extends State<HomeworkScreen>
                             style: TextStyle(
                               fontSize: 10,
                               color: Colors.grey.shade500,
-                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.bold
                             ),
                           ),
                         ],
@@ -308,38 +290,42 @@ class _HomeworkScreenState extends State<HomeworkScreen>
     final isCollapsed = _collapsed[status] ?? false;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildStatusHeader(status),
         AnimatedCrossFade(
           firstChild: Column(
-            children: list.map(_buildHomeworkItem).toList(),
+            children: [
+              ...list.map(_buildHomeworkItem),
+              TextButton(
+                style: TextButton.styleFrom(
+                  overlayColor: const Color.fromARGB(255, 30, 121, 163),
+                  elevation: 0
+                ),
+                onPressed: () {},
+                child: Text(
+                  "Показать еще",
+                  style: TextStyle(
+                    color: Colors.lightBlueAccent
+                  ),
+                ),
+              ),
+            ],
           ),
           secondChild: const SizedBox(height: 0),
           crossFadeState: isCollapsed
               ? CrossFadeState.showSecond
               : CrossFadeState.showFirst,
-          duration: const Duration(milliseconds: 250),
+          sizeCurve: Curves.easeInOut,
+          duration: const Duration(milliseconds: 350),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 18),
       ],
     );
   }
 
-  Widget _buildTabBody(int? filterStatus) {
+  Widget _buildTabBody() {
     final statuses = [3, 2, 1, 0];
-
-    if (filterStatus != null) {
-      final list = homeworkByStatus[filterStatus] ?? [];
-      if (list.isEmpty) {
-        return _buildEmpty();
-      }
-      return ListView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        itemCount: list.length,
-        itemBuilder: (_, i) => _buildHomeworkItem(list[i]),
-      );
-    }
 
     final hasAny = statuses.any((s) => homeworkByStatus[s]!.isNotEmpty);
     if (!hasAny) return _buildEmpty();
@@ -634,88 +620,8 @@ class _HomeworkScreenState extends State<HomeworkScreen>
             ),
           ),
 
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              dividerColor: Colors.transparent,
-              indicatorColor: Colors.transparent,
-              indicator: BoxDecoration(
-                color: const Color(0xFF1565C0).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              labelColor: const Color(0xFF1565C0),
-              unselectedLabelColor: Colors.grey.shade500,
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 12.5,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 12.5,
-              ),
-              padding: const EdgeInsets.all(4),
-              tabs: [
-                const Tab(text: "Все"),
-                ..._tabStatuses.skip(1).map((s) {
-                  final count = homeworkCounts[s] ??
-                      homeworkByStatus[s]!.length;
-                  return Tab(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(_getStatusIcon(s!), size: 14),
-                        const SizedBox(width: 4),
-                        Text(_getStatusText(s)),
-                        if (count > 0) ...[
-                          const SizedBox(width: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 5, vertical: 1),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(s).withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              "$count",
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: _getStatusColor(s),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: _tabStatuses
-                  .map((s) => _buildTabBody(s))
-                  .toList(),
-            ),
+            child: _buildTabBody()
           ),
         ],
       ),
