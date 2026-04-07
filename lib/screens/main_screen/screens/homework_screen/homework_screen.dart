@@ -358,12 +358,9 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     final hasAny = statuses.any((s) => homeworkByStatus[s]!.isNotEmpty);
     if (!hasAny) return _buildEmpty();
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: statuses.map(_buildSection).toList(),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: statuses.map(_buildSection).toList(),
     );
   }
 
@@ -624,7 +621,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   }
 
   Widget _detailRow(IconData icon, Color colorIcon, String label, String value,
-      {Color? valueColor}) {
+      {Color valueColor = Colors.black87}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -646,7 +643,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: valueColor ?? Colors.black87,
+                color: valueColor,
               ),
             ),
           ],
@@ -659,25 +656,27 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: const Text(
-              "ДОМАШНИЕ ЗАДАНИЯ",
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        child: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 7, bottom: 20),
+              child: const Text(
+                "ДОМАШНИЕ ЗАДАНИЯ",
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
-          ),
-
-          Expanded(
-            child: _buildTabBody()
-          ),
-        ],
+        
+            _buildTabBody(),
+          ],
+        ),
       ),
     );
   }
