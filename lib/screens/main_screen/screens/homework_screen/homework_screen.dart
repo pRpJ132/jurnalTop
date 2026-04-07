@@ -217,17 +217,17 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 7, vertical: 2),
                               decoration: BoxDecoration(
-                                color: Colors.amber.shade100,
+                                color: Colors.amber.shade50,
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                    color: Colors.amber.shade400, width: 1),
+                                    color: Colors.amber.shade300, width: 1),
                               ),
                               child: Text(
                                 "★ $mark",
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.amber.shade800,
+                                  color: Colors.amber.shade500,
                                 ),
                               ),
                             ),
@@ -268,6 +268,32 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                           ),
                         ],
                       ),
+                      SizedBox(height: 2),
+                      if (e['homework_stud'] != null && status != 0) ...[
+                        Row(
+                          children: [
+                            Icon(Icons.check,
+                                size: 12, color: Colors.grey.shade500),
+                            const SizedBox(width: 4),
+                            Text(
+                              DateFormat('dd.MM.yyyy')
+                                  .format(DateTime.parse(e['homework_stud']['creation_time'])),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ] else if (status == 0) ...[
+                        Text(
+                          "Истекший",
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 11,
+                          ),
+                        )
+                      ],
                     ],
                   ),
                 ),
@@ -312,11 +338,13 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
               ),
             ],
           ),
-          secondChild: const SizedBox(height: 0),
+          secondChild: const SizedBox.shrink(),
           crossFadeState: isCollapsed
               ? CrossFadeState.showSecond
               : CrossFadeState.showFirst,
           sizeCurve: Curves.easeInOut,
+          firstCurve: Curves.easeInBack,
+          secondCurve: Curves.easeInBack,
           duration: const Duration(milliseconds: 350),
         ),
         const SizedBox(height: 18),
@@ -439,12 +467,14 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
 
                         _detailRow(
                           Icons.person_outline,
+                          Colors.grey,
                           "Преподаватель",
                           e['fio_teach'] ?? '—',
                         ),
                         const SizedBox(height: 12),
                         _detailRow(
                           Icons.calendar_today_outlined,
+                          Colors.grey,
                           "Срок сдачи",
                           DateFormat('dd MMMM yyyy', 'ru').format(
                               DateTime.parse(e['completion_time'])),
@@ -452,6 +482,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                         const SizedBox(height: 12),
                         _detailRow(
                           Icons.add_circle_outline,
+                          Colors.lightBlueAccent,
                           "Дата создания",
                           DateFormat('dd MMMM yyyy', 'ru').format(
                               DateTime.parse(e['creation_time'])),
@@ -459,10 +490,30 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                         const SizedBox(height: 12),
                         _detailRow(
                           Icons.warning_amber_outlined,
+                          Colors.red,
                           "Дедлайн",
                           DateFormat('dd MMMM yyyy', 'ru').format(
                               DateTime.parse(e['overdue_time'])),
                         ),
+                        if (e['homework_stud'] != null && status != 0) ...[
+                          const SizedBox(height: 12),
+                          _detailRow(
+                            Icons.check,
+                            Colors.green,
+                            "Сдано",
+                            DateFormat('dd MMMM yyyy', 'ru').format(
+                                DateTime.parse(e['homework_stud']['creation_time'])),
+                          ),
+                        ] else if (status == 0) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            "Истекший",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 11,
+                            ),
+                          )
+                        ],
 
                         if (stud != null) ...[
                           const Divider(height: 28),
@@ -476,10 +527,11 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                           const SizedBox(height: 10),
                           if (stud['mark'] != null)
                             _detailRow(
-                              Icons.star_outline,
+                              Icons.star,
+                              Colors.amber.shade500,
                               "Оценка",
                               "${stud['mark']}",
-                              valueColor: Colors.amber.shade700,
+                              valueColor: Colors.amber.shade500,
                             ),
                           if (stud['stud_answer'] != null &&
                               (stud['stud_answer'] as String)
@@ -487,6 +539,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             const SizedBox(height: 10),
                             _detailRow(
                               Icons.text_snippet_outlined,
+                              Colors.grey,
                               "Текст ответа",
                               stud['stud_answer'],
                             ),
@@ -495,6 +548,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             const SizedBox(height: 10),
                             _detailRow(
                               Icons.attach_file,
+                              Colors.grey,
                               "Файл ответа",
                               "Прикреплён",
                               valueColor: Colors.blue.shade700,
@@ -569,12 +623,12 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     );
   }
 
-  Widget _detailRow(IconData icon, String label, String value,
+  Widget _detailRow(IconData icon, Color colorIcon, String label, String value,
       {Color? valueColor}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: Colors.grey.shade500),
+        Icon(icon, size: 16, color: colorIcon),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
