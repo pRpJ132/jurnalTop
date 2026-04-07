@@ -12,8 +12,9 @@ class CustomDrawer extends StatelessWidget {
       child: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
+            colorFilter: ColorFilter.linearToSrgbGamma(),
             image: AssetImage('assets/background-draw.jpg'),
-            fit: BoxFit.fill,
+            fit: BoxFit.cover,
           ),
         ),
         child: ValueListenableBuilder<int>(
@@ -112,6 +113,7 @@ class CustomDrawer extends StatelessWidget {
               ? Colors.black
               : const Color.fromARGB(179, 0, 0, 0),
           fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+          fontSize: selected ? 18 : 14,
         ),
       ),
       onTap: () {

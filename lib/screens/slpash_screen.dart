@@ -17,7 +17,7 @@ class _SlpashscreenState extends State<Slpashscreen> {
   @override
   void initState() {
     super.initState();
-    LoadData();
+    loadData();
   }
 
   @override
@@ -52,25 +52,16 @@ class _SlpashscreenState extends State<Slpashscreen> {
     );
   }
 
-  void LoadData() async {
+  void loadData() async {
     await Future.delayed(const Duration(milliseconds: 400));
     if (await UserStorage.isValidAllData() == true &&
         await AuthStorage.isValid() == true) {
       final response = await ApiClient.get("settings/user-info");
       if (response.statusCode == 200) {
         final data = await jsonDecode(response.body);
-        final username = await UserStorage.getUsername();
-        final password = await UserStorage.getPassword();
         await UserStorage.clearAll();
         await UserStorage.saveUserInfo(
-          photoUrl: data["photo"],
-          fullName: data["full_name"],
-          groupName: data["groups"][0]["name"],
-          id: data["student_id"].toInt(),
-          topcoins: data["gaming_points"][0]["points"].toInt(),
-          topgems: data["gaming_points"][1]["points"].toInt(),
-          username: username ?? "",
-          password: password ?? "",
+          data: data,
         );
       }
       Navigator.pushAndRemoveUntil(

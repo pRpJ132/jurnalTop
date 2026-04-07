@@ -121,8 +121,17 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
           mainAxisSize: .min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              "РАСПИСАНИЕ",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 19,
+                fontWeight: FontWeight.w600
+              ),
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 55,
               children: [
                 IconButton(
                   onPressed: _prevMonth,

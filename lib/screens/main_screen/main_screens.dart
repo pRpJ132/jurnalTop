@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/screens/login_screen.dart';
+import 'package:my_app/screens/main_screen/screens/homework_screen/homework_screen.dart';
 import 'package:my_app/screens/main_screen/screens/main_screen/main_screen.dart';
 import 'package:my_app/screens/main_screen/screens/schedules_screen/schedules_screen.dart';
 import 'package:my_app/screens/main_screen/widgets/menu_drawer.dart';
@@ -25,6 +26,18 @@ class _MainscreensState extends State<Mainscreens> {
   List<Widget> pages = [
     Mainscreen(),
     SchedulesScreen(),
+    SizedBox.fromSize(),
+    HomeworkScreen(),
+    SizedBox.fromSize(),
+    SizedBox.fromSize(),
+    SizedBox.fromSize(),
+    SizedBox.fromSize(),
+    SizedBox.fromSize(),
+    SizedBox.fromSize(),
+    SizedBox.fromSize(),
+    SizedBox.fromSize(),
+    SizedBox.fromSize(),
+    SizedBox.fromSize(),
   ];
 
   Future<void> initUserData() async {
@@ -105,7 +118,7 @@ class _MainscreensState extends State<Mainscreens> {
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: const Color.fromARGB(255, 216, 216, 216),
+                color: const Color.fromARGB(255, 240, 240, 240),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

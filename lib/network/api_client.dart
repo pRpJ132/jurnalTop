@@ -93,14 +93,7 @@ class ApiClient {
             final data = await jsonDecode(response.body);
             await UserStorage.clearAll();
             await UserStorage.saveUserInfo(
-              photoUrl: data["photo"],
-              fullName: data["full_name"],
-              groupName: data["groups"][0]["name"],
-              id: data["student_id"].toInt(),
-              topcoins: data["gaming_points"][0]["points"].toInt(),
-              topgems: data["gaming_points"][1]["points"].toInt(),
-              password: password ?? "",
-              username: username ?? "",
+              data: data,
             );
           }
 
