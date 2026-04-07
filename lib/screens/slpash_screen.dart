@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:my_app/screens/view/login_screen.dart';
-import 'package:my_app/screens/view/main_screen.dart';
+import 'package:my_app/network/api_client.dart';
+import 'package:my_app/screens/login_screen.dart';
+import 'package:my_app/screens/main_screen/main_screen.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/user_storage.dart';
 
@@ -52,9 +55,21 @@ class _SlpashscreenState extends State<Slpashscreen> {
 
   void LoadData() async {
     await Future.delayed(const Duration(milliseconds: 400));
-
     if (await UserStorage.isValidAllData() == true &&
         await AuthStorage.isValid() == true) {
+      final response = await ApiClient.get("settings/user-info");
+      if (response.statusCode == 200) {
+        final data = await jsonDecode(response.body);
+        await UserStorage.clearAll();
+        await UserStorage.saveUserInfo(
+          photoUrl: data["photo"],
+          fullName: data["full_name"],
+          groupName: data["groups"][0]["name"],
+          id: data["student_id"].toInt(),
+          topcoins: data["gaming_points"][0]["points"].toInt(),
+          topgems: data["gaming_points"][1]["points"].toInt(),
+        );
+      }
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const Mainscreen()),

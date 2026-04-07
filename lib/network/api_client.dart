@@ -1,102 +1,143 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+import 'package:my_app/network/settings/settings_api.dart';
+import 'package:my_app/screens/login_screen.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/logger.dart';
 
+// Класс для Api клиента
 class ApiClient {
-  static const String _baseUrl = 'https://msapi.top-academy.ru/api/v2/';
+  // Создаем url и http клиента
+  static final String _baseUrl = ADDRESS_SERVER;
   static final http.Client _client = http.Client();
 
-  static Future<Map<String, String>> _getHeaders() async {
+  // Функция для запроса
+  static Future<http.Response> _request(
+    String path,
+    String method, {
+    BuildContext? context,
+    String? body,
+    bool customUrl = false,
+    bool authCheck = true,
+    Map<String, dynamic>? queryPar = null,
+  }) async {
+    final uri = customUrl ? Uri.parse(path) : Uri.parse('$_baseUrl$path');
     final token = await AuthStorage.getAccessToken();
-    return {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Origin': 'https://journal.top-academy.ru',
-      'Referer': 'https://journal.top-academy.ru/',
-      'User-Agent': 'Mozilla/5.0',
-    };
-  }
 
-  static Future<http.Response> get(
-    String path, [
-    bool customUrl = false,
-  ]) async {
-    logger.i('GET request to: $_baseUrl$path');
-    final uri = customUrl ? Uri.parse(path) : Uri.parse('$_baseUrl$path');
+    // Логер для http запросов
+    if (debugLog)
+      logger.i('HTTP $method -> $uri \nBody: ${body ?? {}}');
 
-    final response = await _client.get(uri, headers: await _getHeaders());
+    late http.Response response;
 
-    _handleErrors(response);
-    return response;
-  }
+    try {
+      // Свитч кейс для методов запросов
+      switch (method.toUpperCase()) {
+        case 'GET':
+          response = await _client.get(uri.replace(
+            queryParameters: queryPar
+          ), headers: _headers(token));
+          break;
+        case 'POST':
+          response =
+              await _client.post(uri.replace(
+            queryParameters: queryPar
+          ), headers: _headers(token), body: body);
+          break;
+        case 'PUT':
+          response =
+              await _client.put(uri.replace(
+            queryParameters: queryPar
+          ), headers: _headers(token), body: body);
+          break;
+        case 'PATCH':
+          response = await _client.patch(uri.replace(
+            queryParameters: queryPar
+          ), headers: _headers(token), body: body);
+          break;
+        case 'DELETE':
+          response = await _client.delete(uri.replace(
+            queryParameters: queryPar
+          ), headers: _headers(token), body: body);
+          break;
+        default:
+          throw Exception('Unsupported HTTP method: $method');
+      }
 
-  static Future<http.Response> post(
-    String path,
-    Map<String, dynamic> body, [
-    bool customUrl = false,
-  ]) async {
-    logger.i('POST request to: $_baseUrl$path');
-    final uri = customUrl ? Uri.parse(path) : Uri.parse('$_baseUrl$path');
+      if (response.statusCode == 401 && authCheck) {
+        final response2 = await _client.post(
+          Uri.parse('${_baseUrl}auth/refresh'), 
+          headers: _headers(token), 
+          body: jsonEncode({
+            'refresh_token': '${await AuthStorage.getRefreshToken()}'
+          })
+        );
+        if (response2.statusCode == 200) {
+          final body2 = jsonDecode(response2.body);
 
-    final response = await _client.post(
-      uri,
-      headers: await _getHeaders(),
-      body: jsonEncode(body),
-    );
+          await AuthStorage.saveTokens(
+            body2['access_token'], 
+            body2['refresh_token']
+          );
 
-    _handleErrors(response);
-    return response;
-  }
+          return _request(path, method, context: context, body: body, customUrl: customUrl, authCheck: false);
+        } else {
+          if (context == null) return response; 
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (_, _, _) => const Loginscreen(),
+            )
+          );
+          if (debugLog) {
+            logger.e('Login failed: ${response2.body}');
+            logger.e('Status code: ${response2.statusCode}');
+          }
+        }
+      }
 
-  static Future<http.Response> patch(String path) async {
-    logger.i('PATCH request to: $_baseUrl$path');
-    final uri = Uri.parse('$_baseUrl$path');
-
-    final response = await _client.patch(uri, headers: await _getHeaders());
-
-    _handleErrors(response);
-    return response;
-  }
-
-  static Future<http.Response> put(
-    String path,
-    Map<String, dynamic> body,
-  ) async {
-    logger.i('PUT request to: $_baseUrl$path');
-    final uri = Uri.parse('$_baseUrl$path');
-
-    final response = await _client.put(
-      uri,
-      headers: await _getHeaders(),
-      body: jsonEncode(body),
-    );
-
-    _handleErrors(response);
-    return response;
-  }
-
-  static Future<http.Response> delete(
-    String path, [
-    bool customUrl = false,
-  ]) async {
-    logger.i('DELETE request to: $_baseUrl$path');
-    final uri = customUrl ? Uri.parse(path) : Uri.parse('$_baseUrl$path');
-
-    final response = await _client.delete(uri, headers: await _getHeaders());
-
-    _handleErrors(response);
-    return response;
-  }
-
-  static void _handleErrors(http.Response response) {
-    if (response.statusCode == 401) {
-      AuthStorage.clear();
+      // Логер для получения обратного ответа от сервера
+      if (debugLog)
+        logger.i('HTTP $method <- ${response.statusCode}\nBody: ${response.body}');
+      return response;
+    } catch (e) {
+      // Логер для ошибки запроса
+      if (debugLog)
+        logger.e('HTTP $method error: $e');
+      return Response('', 503);
     }
   }
 
-  static void dispose() {
-    _client.close();
-  }
+  // Функция для Header
+  static Map<String, String> _headers(String? token) => {
+    'Authorization': (token != null && token.isNotEmpty) ? "Bearer $token" : '',
+    'Content-Type': 'application/json',
+    'Origin': 'https://journal.top-academy.ru',
+    'Referer': 'https://journal.top-academy.ru/',
+    'User-Agent': 'Mozilla/5.0',
+  };
+
+  // Функция GET запроса
+  static Future<http.Response> get(String path, {bool customUrl = false, BuildContext? context, Map<String, dynamic>? queryParameters}) =>
+      _request(path, 'GET', context: context, customUrl: customUrl, queryPar: queryParameters);
+
+  // Функция POST запроса
+  static Future<http.Response> post(String path, Map<String, dynamic> body,
+          {bool customUrl = false, BuildContext? context, Map<String, dynamic>? queryParameters}) =>
+      _request(path, 'POST', context: context, body: jsonEncode(body), customUrl: customUrl, queryPar: queryParameters);
+
+  // Функция PUT запроса
+  static Future<http.Response> put(String path, Map<String, dynamic> body, 
+          {bool customUrl = false, BuildContext? context, Map<String, dynamic>? queryParameters}) =>
+      _request(path, 'PUT', context: context, body: jsonEncode(body), customUrl: customUrl, queryPar: queryParameters);
+
+  // Функция PATCH запроса
+  static Future<http.Response> patch(String path, Map<String, dynamic> body, 
+          {bool customUrl = false, BuildContext? context, Map<String, dynamic>? queryParameters}) => 
+      _request(path, 'PATCH', context: context, body: jsonEncode(body), customUrl: customUrl, queryPar: queryParameters);
+
+  // Функция DELETE запроса
+  static Future<http.Response> delete(String path, Map<String, dynamic> body, {bool customUrl = false, BuildContext? context, Map<String, dynamic>? queryParameters}) =>
+      _request(path, 'DELETE', context: context, body: jsonEncode(body), customUrl: customUrl, queryPar: queryParameters);
 }

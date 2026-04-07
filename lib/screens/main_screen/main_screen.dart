@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:my_app/screens/view/login_screen.dart';
-import 'package:my_app/screens/widgets/homework_menu.dart';
-import 'package:my_app/screens/widgets/menu_drawer.dart';
-import 'package:my_app/screens/widgets/reiting_info_menu.dart';
+import 'package:my_app/screens/login_screen.dart';
+import 'package:my_app/screens/main_screen/widgets/homework_menu.dart';
+import 'package:my_app/screens/main_screen/widgets/leaderboard.dart';
+import 'package:my_app/screens/main_screen/widgets/menu_drawer.dart';
+import 'package:my_app/screens/main_screen/widgets/reiting_info_menu.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/user_storage.dart';
 
@@ -19,23 +20,17 @@ class _MainscreenState extends State<Mainscreen> {
   String groupName = "";
   int topcoins = 0;
   int topgems = 0;
-  String devicePlatform = "";
-  String deviceOsVersion = "";
 
   Future<void> initUserData() async {
-    final name = await UserStorage.getFullName() ?? "Tamik :)";
-    final group = await UserStorage.getGroupName() ?? "Guest";
+    final name = await UserStorage.getFullName() ?? "Tamik";
+    final group = await UserStorage.getGroupName() ?? "Unknown";
     final coins = await UserStorage.getTopCoins() ?? 0;
     final gems = await UserStorage.getTopGems() ?? 0;
-    final platform = await UserStorage.getDevicePlatform() ?? "Unknown";
-    final osVersion = await UserStorage.getDeviceOsVersion() ?? "Unknown";
     setState(() {
       nameFull = name;
       groupName = group;
       topcoins = coins;
       topgems = gems;
-      devicePlatform = platform;
-      deviceOsVersion = osVersion;
     });
   }
 
@@ -48,14 +43,42 @@ class _MainscreenState extends State<Mainscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF9AC9C0),
       drawer: CustomDrawer(),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEFEFEF),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         elevation: 0,
         title: Row(
           children: [
-            const Icon(Icons.person, color: Colors.black, size: 30),
+            FutureBuilder<String?>(
+              future: UserStorage.getPhotoUrl(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return ClipOval(
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      color: const Color.fromARGB(255, 220, 219, 219),
+                      child: const Icon(Icons.person)
+                    ),
+                  );
+                }
+
+                return ClipOval(
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Image.network(
+                      snapshot.data!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -109,16 +132,43 @@ class _MainscreenState extends State<Mainscreen> {
             top: 17.0,
             left: 17.0,
             right: 17.0,
+            bottom: 25
           ),
+          child: MediaQuery.of(context).size.width < 600 ? _buildMobile() : _buildTablet(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobile() {
+    return Column(
+      spacing: 25,
+      children: [
+        HomeworkMenu(),
+        ReitingInfoMenu(),
+        Leaderboard(),
+      ],
+    );
+  }
+
+  Widget _buildTablet() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: HomeworkMenu(),
+        ),
+        SizedBox(width: 16),
+        Expanded(
           child: Column(
+            spacing: 25,
             children: [
-              HomeworkMenu(),
-              SizedBox(height: 25,),
-              ReitingInfoMenu()
+              ReitingInfoMenu(),
+              Leaderboard(),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }

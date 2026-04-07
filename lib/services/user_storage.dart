@@ -1,31 +1,4 @@
-import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-final deviceInfo = DeviceInfoPlugin();
-
-enum PlatformType {
-  android,
-  ios,
-}
-
-Future<void> getDeviceInfo(prefs, _devicePlatform, _deviceModel, _deviceOsVersion) async {
-  if (Platform.isAndroid) {
-    final androidInfo = await deviceInfo.androidInfo;
-    await prefs.setString(_devicePlatform, PlatformType.android);
-    await prefs.setString(_deviceModel, androidInfo.model);
-    await prefs.setString(_deviceOsVersion, androidInfo.version.release);
-    return;
-  }
-
-  if (Platform.isIOS) {
-    final iosInfo = await deviceInfo.iosInfo;
-    await prefs.setString(_devicePlatform, PlatformType.ios);
-    await prefs.setString(_deviceModel, iosInfo.utsname.machine);
-    await prefs.setString(_deviceOsVersion, iosInfo.systemVersion);
-    return;
-  }
-}
 
 class UserStorage {
   static const _photoUrlKey = 'user_photo_url';
@@ -34,9 +7,6 @@ class UserStorage {
   static const _id = 'student_id';
   static const _topcoins = 'topcoins';
   static const _topgems = 'topgems';
-  static const _devicePlatform = 'device_platform';
-  static const _deviceModel = 'device_model';
-  static const _deviceOsVersion = 'device_os_version';
 
   static Future<void> saveUserInfo({
     required String fullName,
@@ -47,7 +17,6 @@ class UserStorage {
     required int topgems,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    getDeviceInfo(prefs, _devicePlatform, _deviceModel, _deviceOsVersion);
     await prefs.setString(_fullNameKey, fullName);
     await prefs.setString(_photoUrlKey, photoUrl);
     await prefs.setString(_groupNameKey, groupName);
@@ -99,21 +68,6 @@ class UserStorage {
   static Future<int?> getTopGems() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_topgems);
-  }
-
-  static Future<String?> getDevicePlatform() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_devicePlatform);
-  }
-
-  static Future<String?> getDeviceModel() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_deviceModel);
-  }
-
-  static Future<String?> getDeviceOsVersion() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_deviceOsVersion);
   }
 
   static Future<void> clearAll() async {

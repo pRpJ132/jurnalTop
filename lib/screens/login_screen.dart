@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:my_app/network/api_client.dart';
-import 'package:my_app/screens/view/main_screen.dart';
+import 'package:my_app/screens/main_screen/main_screen.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/logger.dart';
 import 'package:my_app/services/user_storage.dart';
@@ -181,8 +181,7 @@ class _LoginscreenState extends State<Loginscreen> {
 
     try {
       Response response = await ApiClient.post("auth/login", {
-        "application_key":
-            "6a56a5df2667e65aab73ce76d1dd737f7d1faef9c52e8b8c55ac75f565d8e8a6",
+        "application_key": "6a56a5df2667e65aab73ce76d1dd737f7d1faef9c52e8b8c55ac75f565d8e8a6",
         "id_city": null,
         "password": password,
         "username": username,

@@ -11,16 +11,16 @@ class HomeworkMenu extends StatefulWidget {
 }
 
 class _HomeworkMenuState extends State<HomeworkMenu> {
-  int homeworkConfirm = 0;
-  int homeworkCurrent = 0;
-  int homeworkUnderReview = 0;
-  int homeworkExpired = 0;
-  int homeworkAll = 0;
+  final homeworkConfirm = ValueNotifier<int>(0);
+  final homeworkCurrent = ValueNotifier<int>(0);
+  final homeworkUnderReview = ValueNotifier<int>(0);
+  final homeworkExpired = ValueNotifier<int>(0);
+  final homeworkAll = ValueNotifier<int>(0);
 
   @override
   void initState() {
     super.initState();
-    LoadHomework();
+    _loadHomework();
   }
 
 
@@ -46,12 +46,15 @@ class _HomeworkMenuState extends State<HomeworkMenu> {
             ),
             Divider(),
             Center(
-              child: Text(
-                homeworkAll.toString(),
-                style: TextStyle(
-                  fontSize: 47,
-                  color: Color(0xFF188194),
-                  fontWeight: FontWeight.w500,
+              child: ValueListenableBuilder<int>(
+                valueListenable: homeworkAll,
+                builder: (_, value, _) => Text(
+                  value.toString(),
+                  style: TextStyle(
+                    fontSize: 47,
+                    color: Color(0xFF188194),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
@@ -72,10 +75,30 @@ class _HomeworkMenuState extends State<HomeworkMenu> {
                     spacing: 20,
                     runSpacing: 18,
                     children: [
-                      widgetTextRow(homeworkCurrent.toString(), "Текущие", color: Colors.deepPurple),
-                      widgetTextRow(homeworkConfirm.toString(), "Проверено", color: Color(0xFF188194)),
-                      widgetTextRow(homeworkUnderReview.toString(), "На проверке", color: Color.fromARGB(255, 237, 216, 27)),
-                      widgetTextRow(homeworkExpired.toString(), "Просрочено", color: Colors.red),
+                      ValueListenableBuilder<int>(
+                        valueListenable: homeworkCurrent,
+                        builder: (_, value, _) =>
+                            widgetTextRow(value.toString(), "Текущие", color: Colors.deepPurple),
+                      ),
+
+                      ValueListenableBuilder<int>(
+                        valueListenable: homeworkConfirm,
+                        builder: (_, value, _) =>
+                            widgetTextRow(value.toString(), "Проверено", color: Color(0xFF188194)),
+                      ),
+
+                      ValueListenableBuilder<int>(
+                        valueListenable: homeworkUnderReview,
+                        builder: (_, value, _) =>
+                            widgetTextRow(value.toString(), "На проверке",
+                                color: Color.fromARGB(255, 237, 216, 27)),
+                      ),
+
+                      ValueListenableBuilder<int>(
+                        valueListenable: homeworkExpired,
+                        builder: (_, value, _) =>
+                            widgetTextRow(value.toString(), "Просрочено", color: Colors.red),
+                      ),
                     ],
                   ),
                 ),
@@ -87,17 +110,15 @@ class _HomeworkMenuState extends State<HomeworkMenu> {
     );
   }
 
-  void LoadHomework() async {
+  void _loadHomework() async {
     final response = await ApiClient.get("count/homework");
     if (response.statusCode == 200) {
       final data = await jsonDecode(response.body);
-      setState(() {
-        homeworkConfirm = data[0]["counter"].toInt();
-        homeworkCurrent = data[1]["counter"].toInt();
-        homeworkExpired = data[2]["counter"].toInt();
-        homeworkUnderReview = data[3]["counter"].toInt();
-        homeworkAll = data[5]["counter"].toInt();
-      });
+      homeworkConfirm.value = data[0]["counter"].toInt();
+      homeworkCurrent.value = data[1]["counter"].toInt();
+      homeworkExpired.value = data[2]["counter"].toInt();
+      homeworkUnderReview.value = data[3]["counter"].toInt();
+      homeworkAll.value = data[5]["counter"].toInt();
     }
   }
 

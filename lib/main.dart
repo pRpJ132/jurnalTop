@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/screens/view/slpash_screen.dart';
+import 'package:my_app/screens/slpash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +11,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: Slpashscreen());
+    return MaterialApp(
+      theme: ThemeData(
+        scaffoldBackgroundColor: const Color(0xFF9AC9C0),
+      ),
+      debugShowCheckedModeBanner: false, 
+      home: Slpashscreen()
+    );
   }
 }
