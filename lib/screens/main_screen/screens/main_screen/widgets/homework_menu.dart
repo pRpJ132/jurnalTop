@@ -23,6 +23,16 @@ class _HomeworkMenuState extends State<HomeworkMenu> {
     _loadHomework();
   }
 
+  @override
+  void dispose() {
+    homeworkConfirm.dispose();
+    homeworkCurrent.dispose();
+    homeworkUnderReview.dispose();
+    homeworkExpired.dispose();
+    homeworkAll.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {

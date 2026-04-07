@@ -1,25 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/screens/login_screen.dart';
-import 'package:my_app/screens/main_screen/widgets/homework_menu.dart';
-import 'package:my_app/screens/main_screen/widgets/leaderboard.dart';
+import 'package:my_app/screens/main_screen/screens/main_screen/main_screen.dart';
+import 'package:my_app/screens/main_screen/screens/schedules_screen/schedules_screen.dart';
 import 'package:my_app/screens/main_screen/widgets/menu_drawer.dart';
-import 'package:my_app/screens/main_screen/widgets/reiting_info_menu.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/user_storage.dart';
 
-class Mainscreen extends StatefulWidget {
-  const Mainscreen({super.key});
+class Mainscreens extends StatefulWidget {
+  const Mainscreens({super.key});
 
   @override
-  State<Mainscreen> createState() => _MainscreenState();
+  State<Mainscreens> createState() => _MainscreensState();
 }
 
-class _MainscreenState extends State<Mainscreen> {
+class _MainscreensState extends State<Mainscreens> {
   String nameFull = "";
   String groupName = "";
   int topcoins = 0;
   int topgems = 0;
+
+  final pageIndex = ValueNotifier<int>(0);
+
+  List<Widget> pages = [
+    Mainscreen(),
+    SchedulesScreen(),
+  ];
 
   Future<void> initUserData() async {
     final name = await UserStorage.getFullName() ?? "Tamik";
@@ -41,9 +47,15 @@ class _MainscreenState extends State<Mainscreen> {
   }
 
   @override
+  void dispose() {
+    pageIndex.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: CustomDrawer(),
+      drawer: CustomDrawer(pageIndex: pageIndex,),
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
@@ -126,49 +138,15 @@ class _MainscreenState extends State<Mainscreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            top: 17.0,
-            left: 17.0,
-            right: 17.0,
-            bottom: 25
-          ),
-          child: MediaQuery.of(context).size.width < 600 ? _buildMobile() : _buildTablet(),
-        ),
+      body: ValueListenableBuilder<int>(
+        valueListenable: pageIndex,
+        builder: (context, data, _) {
+          if (data >= 0 && data < pages.length) {
+            return pages[data];
+          }
+          return SizedBox.shrink();
+        }
       ),
-    );
-  }
-
-  Widget _buildMobile() {
-    return Column(
-      spacing: 25,
-      children: [
-        HomeworkMenu(),
-        ReitingInfoMenu(),
-        Leaderboard(),
-      ],
-    );
-  }
-
-  Widget _buildTablet() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: HomeworkMenu(),
-        ),
-        SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            spacing: 25,
-            children: [
-              ReitingInfoMenu(),
-              Leaderboard(),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

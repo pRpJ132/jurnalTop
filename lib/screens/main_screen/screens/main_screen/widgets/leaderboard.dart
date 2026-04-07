@@ -32,6 +32,8 @@ class _LeaderboardState extends State<Leaderboard>
   @override
   void dispose() {
     _controller.dispose();
+    listGroup.dispose();
+    listStream.dispose();
     super.dispose();
   }
 

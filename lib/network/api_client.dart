@@ -6,6 +6,7 @@ import 'package:my_app/network/settings/settings_api.dart';
 import 'package:my_app/screens/login_screen.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/logger.dart';
+import 'package:my_app/services/user_storage.dart';
 
 // Класс для Api клиента
 class ApiClient {
@@ -67,11 +68,16 @@ class ApiClient {
       }
 
       if (response.statusCode == 401 && authCheck) {
+        final password = await UserStorage.getPassword();
+        final username = await UserStorage.getUsername();
         final response2 = await _client.post(
-          Uri.parse('${_baseUrl}auth/refresh'), 
+          Uri.parse('${_baseUrl}auth/login'), 
           headers: _headers(token), 
           body: jsonEncode({
-            'refresh_token': '${await AuthStorage.getRefreshToken()}'
+           "application_key": "6a56a5df2667e65aab73ce76d1dd737f7d1faef9c52e8b8c55ac75f565d8e8a6",
+            "id_city": null,
+            "password": password,
+            "username": username,
           })
         );
         if (response2.statusCode == 200) {
@@ -81,6 +87,22 @@ class ApiClient {
             body2['access_token'], 
             body2['refresh_token']
           );
+
+          response = await ApiClient.get("settings/user-info");
+          if (response.statusCode == 200) {
+            final data = await jsonDecode(response.body);
+            await UserStorage.clearAll();
+            await UserStorage.saveUserInfo(
+              photoUrl: data["photo"],
+              fullName: data["full_name"],
+              groupName: data["groups"][0]["name"],
+              id: data["student_id"].toInt(),
+              topcoins: data["gaming_points"][0]["points"].toInt(),
+              topgems: data["gaming_points"][1]["points"].toInt(),
+              password: password ?? "",
+              username: username ?? "",
+            );
+          }
 
           return _request(path, method, context: context, body: body, customUrl: customUrl, authCheck: false);
         } else {

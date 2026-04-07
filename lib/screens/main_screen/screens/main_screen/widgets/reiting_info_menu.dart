@@ -22,9 +22,14 @@ class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    print(MediaQuery.of(context).size.width);
+  void dispose() {
+    positionGroup.dispose();
+    positionStream.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

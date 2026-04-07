@@ -1,6 +1,9 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserStorage {
+  static const _usernameKey = 'username';
+  static const _passwordKey = 'password';
+
   static const _photoUrlKey = 'user_photo_url';
   static const _fullNameKey = 'user_full_name';
   static const _groupNameKey = 'group_name';
@@ -15,6 +18,9 @@ class UserStorage {
     required int id,
     required int topcoins,
     required int topgems,
+
+    required String username,
+    required String password,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_fullNameKey, fullName);
@@ -23,6 +29,9 @@ class UserStorage {
     await prefs.setInt(_id, id);
     await prefs.setInt(_topcoins, topcoins);
     await prefs.setInt(_topgems, topgems);
+
+    await prefs.setString(_usernameKey, username);
+    await prefs.setString(_passwordKey, password);
   }
 
   static Future<bool?> isValidAllData() async {
@@ -68,6 +77,16 @@ class UserStorage {
   static Future<int?> getTopGems() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_topgems);
+  }
+
+  static Future<String?> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_usernameKey);
+  }
+
+  static Future<String?> getPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_passwordKey);
   }
 
   static Future<void> clearAll() async {

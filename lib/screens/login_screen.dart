@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:my_app/network/api_client.dart';
-import 'package:my_app/screens/main_screen/main_screen.dart';
+import 'package:my_app/screens/main_screen/main_screens.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/logger.dart';
 import 'package:my_app/services/user_storage.dart';
@@ -205,11 +205,8 @@ class _LoginscreenState extends State<Loginscreen> {
             id: data["student_id"].toInt(),
             topcoins: data["gaming_points"][0]["points"].toInt(),
             topgems: data["gaming_points"][1]["points"].toInt(),
-          );
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const Mainscreen()),
-            (route) => false,
+            password: password,
+            username: username
           );
         } else {
           final data = await jsonDecode(response.body);
@@ -224,6 +221,12 @@ class _LoginscreenState extends State<Loginscreen> {
             type: ToastificationType.error,
           );
         }
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const Mainscreens()),
+          (route) => false,
+        );
       } else if (response.statusCode == 422) {
         final data = await jsonDecode(response.body);
         logger.e(

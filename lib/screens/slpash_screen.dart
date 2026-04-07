@@ -1,9 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:my_app/network/api_client.dart';
 import 'package:my_app/screens/login_screen.dart';
-import 'package:my_app/screens/main_screen/main_screen.dart';
+import 'package:my_app/screens/main_screen/main_screens.dart';
 import 'package:my_app/services/auth_storage.dart';
 import 'package:my_app/services/user_storage.dart';
 
@@ -60,6 +59,8 @@ class _SlpashscreenState extends State<Slpashscreen> {
       final response = await ApiClient.get("settings/user-info");
       if (response.statusCode == 200) {
         final data = await jsonDecode(response.body);
+        final username = await UserStorage.getUsername();
+        final password = await UserStorage.getPassword();
         await UserStorage.clearAll();
         await UserStorage.saveUserInfo(
           photoUrl: data["photo"],
@@ -68,11 +69,13 @@ class _SlpashscreenState extends State<Slpashscreen> {
           id: data["student_id"].toInt(),
           topcoins: data["gaming_points"][0]["points"].toInt(),
           topgems: data["gaming_points"][1]["points"].toInt(),
+          username: username ?? "",
+          password: password ?? "",
         );
       }
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const Mainscreen()),
+        MaterialPageRoute(builder: (_) => const Mainscreens()),
         (route) => false,
       );
     } else {
