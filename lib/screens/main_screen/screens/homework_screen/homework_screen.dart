@@ -27,6 +27,8 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   late ValueNotifier<List<_SpacesItem>> nameSpaces = ValueNotifier([_basicItem]);
   late ValueNotifier<_SpacesItem> selectedItem = ValueNotifier(_basicItem);
 
+  ValueNotifier<int> typeSpace = ValueNotifier(0);
+
   final Map<int, List<dynamic>> homeworkByStatus = {
     0: [],
     1: [],
@@ -49,12 +51,12 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     _loadCounts();
   }
 
-  Future<void> _loadHomework({int? specId}) async {
+  Future<void> _loadHomework() async {
     final groupId = await UserStorage.getGroupId();
     for (var status in [0, 1, 2, 3]) {
-      String strResp = "homework/operations/list?page=1&status=$status&type=0&group_id=$groupId";
-      if (specId != null) {
-        strResp += "&spec_id=$specId";
+      String strResp = "homework/operations/list?page=1&status=$status&type=${typeSpace.value}&group_id=$groupId";
+      if (selectedItem.value.name != "Все") {
+        strResp += "&spec_id=${selectedItem.value.specId}";
       }
       final response = await ApiClient.get(strResp);
       if (response.statusCode == 200) {
@@ -79,11 +81,11 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     }
   }
 
-  Future<void> _loadCounts({int? specId}) async {
+  Future<void> _loadCounts() async {
     final groupId = await UserStorage.getGroupId();
-    String strResp = "count/homework?type=0&group_id=$groupId";
-    if (specId != null) {
-      strResp += "&spec_id=$specId";
+    String strResp = "count/homework?type=${typeSpace.value}&group_id=$groupId";
+    if (selectedItem.value.name != "Все") {
+      strResp += "&spec_id=${selectedItem.value.specId}";
     }
     final response = await ApiClient.get(strResp);
     if (response.statusCode == 200) {
@@ -694,7 +696,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 7, bottom: 20),
+              padding: const EdgeInsets.only(top: 7, bottom: 10),
               child: const Text(
                 "ДОМАШНИЕ ЗАДАНИЯ",
                 style: TextStyle(
@@ -705,57 +707,84 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
               ),
             ),
 
-            ValueListenableBuilder(
-              valueListenable: nameSpaces,
-              builder: (_, spacesVal, _) => ValueListenableBuilder(
-                valueListenable: selectedItem,
-                builder: (_, selectedValue, _) {
-                  return PopupMenuButton<_SpacesItem>(
-                    initialValue: selectedValue,
-                    onSelected: (_SpacesItem item) {
-                      selectedItem.value = item;
-                      if (item.name == 'Все') {
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: nameSpaces,
+                  builder: (_, spacesVal, _) => ValueListenableBuilder(
+                    valueListenable: selectedItem,
+                    builder: (_, selectedValue, _) {
+                      return PopupMenuButton<_SpacesItem>(
+                        initialValue: selectedValue,
+                        onSelected: (_SpacesItem item) {
+                          selectedItem.value = item;
+                          if (item.name == 'Все') {
+                            _loadCounts();
+                            _loadHomework();
+                            return;
+                          }
+                          _loadCounts();
+                          _loadHomework();
+                        },
+                        constraints: BoxConstraints(
+                          maxHeight: 450,
+                          maxWidth: 250
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        color: Colors.white,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                          constraints: BoxConstraints(
+                            maxWidth: 200.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            borderRadius: BorderRadius.circular(16)
+                          ),
+                          child: Text(
+                            selectedValue.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        itemBuilder: (BuildContext context) {
+                          return spacesVal.map((el) {
+                            return PopupMenuItem<_SpacesItem>(
+                              value: el,
+                              child: Text(el.name),
+                            );
+                          }).toList();
+                        },
+                      );
+                    }
+                  ),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: typeSpace,
+                  builder: (_, typeSpaceValue, _) {
+                    return TextButton(
+                      style: TextButton.styleFrom(
+                        overlayColor: Colors.white
+                      ),
+                      onPressed: ()  {
+                        typeSpace.value == 0 ? typeSpace.value = 1 : typeSpace.value = 0;
                         _loadCounts();
                         _loadHomework();
-                        return;
-                      }
-                      _loadCounts(specId: item.specId);
-                      _loadHomework(specId: item.specId);
-                    },
-                    constraints: BoxConstraints(
-                      maxHeight: 450,
-                      maxWidth: 250
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    color: Colors.white,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
-                      constraints: BoxConstraints(
-                        maxWidth: 200.0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        borderRadius: BorderRadius.circular(16)
-                      ),
+                      }, 
                       child: Text(
-                        selectedValue.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    itemBuilder: (BuildContext context) {
-                      return spacesVal.map((el) {
-                        return PopupMenuItem<_SpacesItem>(
-                          value: el,
-                          child: Text(el.name),
-                        );
-                      }).toList();
-                    },
-                  );
-                }
-              ),
+                        typeSpaceValue == 0 ? "Лабораторные работы" : "Домашние задания",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 13,
+                        ),
+                      )
+                    );
+                  }
+                ),
+              ],
             ),
 
             SizedBox(height: 20),
