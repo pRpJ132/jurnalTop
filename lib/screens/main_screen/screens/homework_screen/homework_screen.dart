@@ -38,7 +38,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     2: [],
     3: [],
   };
-  final Map<int, int> homeworkCounts = {};
+  final ValueNotifier<Map<int, int>> homeworkCounts = ValueNotifier({});
   final Map<int, bool> _collapsed = {
     0: true,
     1: true,
@@ -54,7 +54,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
 
   void _loadAll() async {
     _isLoading.value = true;
-    await _loadSpecs();
+    _loadSpecs();
     await _loadHomework();
     await _loadCounts();
     _isLoading.value = false;
@@ -103,10 +103,8 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       for (var item in data) {
         temp[item['counter_type']] = item['counter'];
       }
-      setState(() {
-        homeworkCounts.clear();
-        homeworkCounts.addAll(temp);
-      });
+      homeworkCounts.value = {};
+      homeworkCounts.value = temp;
     }
   }
 
@@ -156,58 +154,63 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   }
 
   Widget _buildStatusHeader(int status) {
-    final count = homeworkCounts[status] ?? homeworkByStatus[status]!.length;
     final color = _getStatusColor(status);
     final isCollapsed = _collapsed[status] ?? false;
 
-    return GestureDetector(
-      onTap: () => setState(() => _collapsed[status] = !isCollapsed),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color.fromARGB(255, 198, 195, 195)),
-        ),
-        child: Row(
-          children: [
-            Icon(_getStatusIcon(status), color: color, size: 18),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                _getStatusText(status),
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                  fontSize: 13,
+    return ValueListenableBuilder(
+      valueListenable: homeworkCounts,
+      builder: (_, homeworkCountsValue, _) {
+        final count = homeworkCountsValue[status] ?? homeworkByStatus[status]!.length;
+        return GestureDetector(
+          onTap: () => setState(() => _collapsed[status] = !isCollapsed),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 255, 255, 255),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color.fromARGB(255, 198, 195, 195)),
+            ),
+            child: Row(
+              children: [
+                Icon(_getStatusIcon(status), color: color, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _getStatusText(status),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                "$count",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                  fontSize: 12,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    "$count",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 6),
+                AnimatedRotation(
+                  turns: isCollapsed ? 0 : 0.5,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(Icons.keyboard_arrow_down, color: Color.fromARGB(255, 103, 98, 98), size: 20),
+                ),
+              ],
             ),
-            const SizedBox(width: 6),
-            AnimatedRotation(
-              turns: isCollapsed ? 0 : 0.5,
-              duration: const Duration(milliseconds: 200),
-              child: Icon(Icons.keyboard_arrow_down, color: Color.fromARGB(255, 103, 98, 98), size: 20),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 
@@ -717,11 +720,17 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                   children: [
                     ValueListenableBuilder(
                       valueListenable: nameSpaces,
-                      builder: (_, spacesVal, _) => ValueListenableBuilder(
+                      builder: (_, nameSpacesVal, _) => ValueListenableBuilder(
                         valueListenable: selectedItem,
-                        builder: (_, selectedValue, _) {
+                        builder: (_, selectedItemValue, _) {
                           return PopupMenuButton<_SpacesItem>(
-                            initialValue: selectedValue,
+                            popUpAnimationStyle: AnimationStyle(
+                              duration: Duration(milliseconds: 350),
+                              curve: Curves.easeOut,
+                              reverseCurve: Curves.easeIn,
+                              reverseDuration: Duration(milliseconds: 100)
+                            ),
+                            initialValue: selectedItemValue,
                             onSelected: (_SpacesItem item) {
                               selectedItem.value = item;
                               _loadAll();
@@ -744,13 +753,13 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                                 borderRadius: BorderRadius.circular(16)
                               ),
                               child: Text(
-                                selectedValue.name,
+                                selectedItemValue.name,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             itemBuilder: (BuildContext context) {
-                              return spacesVal.map((el) {
+                              return nameSpacesVal.map((el) {
                                 return PopupMenuItem<_SpacesItem>(
                                   value: el,
                                   child: Text(el.name),
