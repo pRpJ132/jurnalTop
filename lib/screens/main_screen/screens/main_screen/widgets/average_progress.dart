@@ -3,20 +3,20 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/network/api_client.dart';
 
-class Attendance extends StatefulWidget {
-  const Attendance({super.key});
+class AverageProgress extends StatefulWidget {
+  const AverageProgress({super.key});
 
   @override
-  State<Attendance> createState() => _AttendanceState();
+  State<AverageProgress> createState() => _AverageProgressState();
 }
 
-class _AttendanceValue {
+class _AverageProgressValue {
   final DateTime? date;
   final bool? hasRasp;
   final int? points;
   final int? previousPoints;
 
-  _AttendanceValue({
+  _AverageProgressValue({
     required this.date,
     required this.hasRasp,
     required this.points,
@@ -24,8 +24,8 @@ class _AttendanceValue {
   });
 }
 
-class _AttendanceState extends State<Attendance> {
-  final lisAttendance = ValueNotifier<List<_AttendanceValue>>([]);
+class _AverageProgressState extends State<AverageProgress> {
+  final lisAttendance = ValueNotifier<List<_AverageProgressValue>>([]);
 
   @override
   void initState() {
@@ -51,14 +51,14 @@ class _AttendanceState extends State<Attendance> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Посещаемость",
+            "Оценки",
             style: TextStyle(
               color: Colors.black,
               fontSize: 22
             ),
           ),
           SizedBox(height: 15),
-          ValueListenableBuilder<List<_AttendanceValue>>(
+          ValueListenableBuilder<List<_AverageProgressValue>>(
             valueListenable: lisAttendance,
             builder: (_, data, _) {
               if (data.isEmpty) {
@@ -74,7 +74,7 @@ class _AttendanceState extends State<Attendance> {
                       show: true,
                       drawVerticalLine: false,
                       drawHorizontalLine: true,
-                      horizontalInterval: 19.9,
+                      horizontalInterval: 0.999,
                       getDrawingHorizontalLine: (value) {
                         return FlLine(
                           strokeWidth: 1,
@@ -94,13 +94,12 @@ class _AttendanceState extends State<Attendance> {
                       leftTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
-                          interval: 20,
-                          reservedSize: 50,
+                          interval: 1,
+                          reservedSize: 40,
                           getTitlesWidget: (value, meta) {
                             return Text(
-                              '${value.toInt()}%',
+                              value.toInt().toString(),
                               maxLines: 1,
-                              overflow: TextOverflow.visible,
                             );
                           },
                         ),
@@ -139,9 +138,9 @@ class _AttendanceState extends State<Attendance> {
                           return touchedSpots.map((spot) {
                             final index = spot.x.toInt();
                             final item = data[index];
-          
+
                             return LineTooltipItem(
-                              '${item.points}%',
+                              '${item.points}',
                               const TextStyle(color: Colors.white),
                             );
                           }).toList();
@@ -165,8 +164,8 @@ class _AttendanceState extends State<Attendance> {
                       ),
                     ],
           
-                    minY: 0,
-                    maxY: 100,
+                    minY: 1,
+                    maxY: 5,
                   ),
                 ),
               );
@@ -178,12 +177,12 @@ class _AttendanceState extends State<Attendance> {
   }
 
   void _loadAttendance() async {
-    final response = await ApiClient.get("dashboard/chart/attendance");
+    final response = await ApiClient.get("dashboard/chart/average-progress");
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
       lisAttendance.value = (data as List)
-          .map<_AttendanceValue>((el) => _AttendanceValue(
+          .map<_AverageProgressValue>((el) => _AverageProgressValue(
                 date: DateTime.tryParse(el['date']),
                 hasRasp: el['has_rasp'],
                 points: el['points'],

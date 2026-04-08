@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/screens/main_screen/screens/main_screen/widgets/attendance.dart';
+import 'package:my_app/screens/main_screen/screens/main_screen/widgets/average_progress.dart';
 import 'package:my_app/screens/main_screen/screens/main_screen/widgets/homework_menu.dart';
 import 'package:my_app/screens/main_screen/screens/main_screen/widgets/leaderboard.dart';
 import 'package:my_app/screens/main_screen/screens/main_screen/widgets/reiting_info_menu.dart';
@@ -57,6 +58,7 @@ class _MainscreenState extends State<Mainscreen> {
       spacing: 25,
       children: [
         Attendance(),
+        AverageProgress(),
         HomeworkMenu(),
         ReitingInfoMenu(),
         Leaderboard(),
@@ -74,6 +76,7 @@ class _MainscreenState extends State<Mainscreen> {
             children: [
               HomeworkMenu(),
               Attendance(),
+              AverageProgress(),
             ],
           ),
         ),
