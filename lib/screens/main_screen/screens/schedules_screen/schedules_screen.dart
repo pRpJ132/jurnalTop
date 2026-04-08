@@ -282,8 +282,16 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
                 ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                overlayColor: Colors.grey
+              ),
               onPressed: () => Navigator.pop(context),
-              child: const Text("Закрыть"),
+              child: const Text(
+                "Закрыть",
+                style: TextStyle(
+                  color: Color.fromARGB(255, 43, 43, 43)
+                ),
+              ),
             )
           ],
         );

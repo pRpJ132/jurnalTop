@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/network/api_client.dart';
@@ -11,7 +12,20 @@ class HomeworkScreen extends StatefulWidget {
   State<HomeworkScreen> createState() => _HomeworkScreenState();
 }
 
+class _SpacesItem {
+    String name;
+    int specId;
+
+    _SpacesItem({
+      required this.name, 
+      required this.specId
+    });
+}
+
 class _HomeworkScreenState extends State<HomeworkScreen> {
+  final _SpacesItem _basicItem = _SpacesItem(name: "Все", specId: -1);
+  late ValueNotifier<List<_SpacesItem>> nameSpaces = ValueNotifier([_basicItem]);
+  late ValueNotifier<_SpacesItem> selectedItem = ValueNotifier(_basicItem);
 
   final Map<int, List<dynamic>> homeworkByStatus = {
     0: [],
@@ -30,30 +44,48 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   @override
   void initState() {
     super.initState();
+    _loadSpecs();
     _loadHomework();
     _loadCounts();
   }
 
-  Future<void> _loadHomework() async {
+  Future<void> _loadHomework({int? specId}) async {
     final groupId = await UserStorage.getGroupId();
     for (var status in [0, 1, 2, 3]) {
-      final response = await ApiClient.get(
-        "homework/operations/list?page=1&status=$status&type=0&group_id=$groupId",
-      );
+      String strResp = "homework/operations/list?page=1&status=$status&type=0&group_id=$groupId";
+      if (specId != null) {
+        strResp += "&spec_id=$specId";
+      }
+      final response = await ApiClient.get(strResp);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        setState(() {
-          homeworkByStatus[status] = data;
-        });
+        homeworkByStatus[status] = data;
+        setState(() => homeworkByStatus);
       }
     }
   }
 
-  Future<void> _loadCounts() async {
-    final groupId = await UserStorage.getGroupId();
+  Future<void> _loadSpecs() async {
     final response = await ApiClient.get(
-      "count/homework?type=0&group_id=$groupId",
+      "settings/group-specs",
     );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      nameSpaces.value = [_basicItem, ...data
+        .map<_SpacesItem>((el) => _SpacesItem(
+              name: el['name'],
+              specId: el['id'],
+            ))];
+    }
+  }
+
+  Future<void> _loadCounts({int? specId}) async {
+    final groupId = await UserStorage.getGroupId();
+    String strResp = "count/homework?type=0&group_id=$groupId";
+    if (specId != null) {
+      strResp += "&spec_id=$specId";
+    }
+    final response = await ApiClient.get(strResp);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       Map<int, int> temp = {};
@@ -74,7 +106,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       case 1:
         return const Color.fromARGB(255, 46, 125, 50);
       case 2:
-        return const Color.fromARGB(255, 223, 203, 19);
+        return const Color.fromARGB(255, 218, 197, 14);
       case 3:
         return const Color.fromARGB(255, 21, 101, 192);
       default:
@@ -123,9 +155,9 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.25)),
+          border: Border.all(color: const Color.fromARGB(255, 198, 195, 195)),
         ),
         child: Row(
           children: [
@@ -160,7 +192,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
             AnimatedRotation(
               turns: isCollapsed ? 0 : 0.5,
               duration: const Duration(milliseconds: 200),
-              child: Icon(Icons.keyboard_arrow_down, color: color, size: 20),
+              child: Icon(Icons.keyboard_arrow_down, color: Color.fromARGB(255, 103, 98, 98), size: 20),
             ),
           ],
         ),
@@ -655,7 +687,6 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         child: Column(
@@ -673,6 +704,61 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                 ),
               ),
             ),
+
+            ValueListenableBuilder(
+              valueListenable: nameSpaces,
+              builder: (_, spacesVal, _) => ValueListenableBuilder(
+                valueListenable: selectedItem,
+                builder: (_, selectedValue, _) {
+                  return PopupMenuButton<_SpacesItem>(
+                    initialValue: selectedValue,
+                    onSelected: (_SpacesItem item) {
+                      selectedItem.value = item;
+                      if (item.name == 'Все') {
+                        _loadCounts();
+                        _loadHomework();
+                        return;
+                      }
+                      _loadCounts(specId: item.specId);
+                      _loadHomework(specId: item.specId);
+                    },
+                    constraints: BoxConstraints(
+                      maxHeight: 450,
+                      maxWidth: 250
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    color: Colors.white,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                      constraints: BoxConstraints(
+                        maxWidth: 200.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                        borderRadius: BorderRadius.circular(16)
+                      ),
+                      child: Text(
+                        selectedValue.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    itemBuilder: (BuildContext context) {
+                      return spacesVal.map((el) {
+                        return PopupMenuItem<_SpacesItem>(
+                          value: el,
+                          child: Text(el.name),
+                        );
+                      }).toList();
+                    },
+                  );
+                }
+              ),
+            ),
+
+            SizedBox(height: 20),
         
             _buildTabBody(),
           ],
