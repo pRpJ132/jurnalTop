@@ -40,9 +40,9 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   };
   final Map<int, int> homeworkCounts = {};
   final Map<int, bool> _collapsed = {
-    0: false,
-    1: false,
-    2: false,
+    0: true,
+    1: true,
+    2: true,
     3: false,
   };
 
@@ -316,14 +316,14 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                         Row(
                           children: [
                             Icon(Icons.check,
-                                size: 12, color: Colors.grey.shade500),
+                                size: 12, color: const Color.fromARGB(255, 0, 150, 5)),
                             const SizedBox(width: 4),
                             Text(
                               DateFormat('dd.MM.yyyy')
                                   .format(e.homeworkStud?.creationTime ?? DateTime.now()),
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.grey.shade500,
+                                color: const Color.fromARGB(255, 0, 150, 5),
                               ),
                             ),
                           ],
@@ -356,7 +356,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   Widget _buildSection(int status) {
     final list = homeworkByStatus[status] ?? [];
     if (list.isEmpty) return const SizedBox();
-    final isCollapsed = _collapsed[status] ?? false;
+    final isCollapsed = _collapsed[status] ?? true;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
