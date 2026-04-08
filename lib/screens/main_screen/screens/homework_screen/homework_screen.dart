@@ -780,6 +780,12 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             initialValue: selectedItemValue,
                             onSelected: (_SpacesItem item) {
                               selectedItem.value = item;
+                              pageByStatus = {
+                                0: 1,
+                                1: 1,
+                                2: 1,
+                                3: 1,
+                              };
                               _loadAll();
                             },
                             constraints: BoxConstraints(
@@ -826,6 +832,12 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                           ),
                           onPressed: ()  {
                             _typeSpace.value == 0 ? _typeSpace.value = 1 : _typeSpace.value = 0;
+                            pageByStatus = {
+                              0: 1,
+                              1: 1,
+                              2: 1,
+                              3: 1,
+                            };
                             _loadAll();
                           }, 
                           child: Text(
