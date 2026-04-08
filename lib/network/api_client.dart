@@ -22,7 +22,7 @@ class ApiClient {
     String? body,
     bool customUrl = false,
     bool authCheck = true,
-    Map<String, dynamic>? queryPar = null,
+    Map<String, dynamic>? queryPar,
   }) async {
     final uri = customUrl ? Uri.parse(path) : Uri.parse('$_baseUrl$path');
     final token = await AuthStorage.getAccessToken();
@@ -74,7 +74,7 @@ class ApiClient {
           Uri.parse('${_baseUrl}auth/login'), 
           headers: _headers(token), 
           body: jsonEncode({
-           "application_key": "6a56a5df2667e65aab73ce76d1dd737f7d1faef9c52e8b8c55ac75f565d8e8a6",
+            "application_key": "6a56a5df2667e65aab73ce76d1dd737f7d1faef9c52e8b8c55ac75f565d8e8a6",
             "id_city": null,
             "password": password,
             "username": username,
@@ -99,7 +99,7 @@ class ApiClient {
 
           return _request(path, method, context: context, body: body, customUrl: customUrl, authCheck: false);
         } else {
-          if (context == null) return response; 
+          if (context == null || !context.mounted) return response; 
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
               pageBuilder: (_, _, _) => const Loginscreen(),

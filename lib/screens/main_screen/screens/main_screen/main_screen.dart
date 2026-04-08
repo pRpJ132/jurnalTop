@@ -69,7 +69,13 @@ class _MainscreenState extends State<Mainscreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: HomeworkMenu(),
+          child: Column(
+            spacing: 25,
+            children: [
+              HomeworkMenu(),
+              Attendance(),
+            ],
+          ),
         ),
         SizedBox(width: 16),
         Expanded(

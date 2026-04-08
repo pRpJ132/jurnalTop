@@ -45,7 +45,7 @@ class _LeaderboardState extends State<Leaderboard>
         borderRadius: BorderRadius.circular(6),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,28 +75,41 @@ class _LeaderboardState extends State<Leaderboard>
             Divider(),
             SizedBox(
               height: 450,
-              child: TabBarView(
-                controller: _controller,
-                children: [
-                  ValueListenableBuilder<List<dynamic>>(
-                    valueListenable: listGroup,
-                    builder: (_, value, _) => ListView.builder(
-                      itemCount: value.length,
-                      itemBuilder: (_, index) { 
-                        return _buildBoardGroup(value, index);
-                      }
-                    )
-                  ),
-                  ValueListenableBuilder<List<dynamic>>(
-                    valueListenable: listStream,
-                    builder: (_, value, _) => ListView.builder(
-                      itemCount: value.length,
-                      itemBuilder: (_, index) { 
-                        return _buildBoardStream(value, index);
-                      }
-                    )
-                  ),
-                ]
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: TabBarView(
+                  controller: _controller,
+                  children: [
+                    ValueListenableBuilder<List<dynamic>>(
+                      valueListenable: listGroup,
+                      builder: (_, value, _) => SingleChildScrollView(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: value.length,
+                          itemBuilder: (_, index) { 
+                            return _buildBoardGroup(value, index);
+                          }
+                        ),
+                      )
+                    ),
+                    ValueListenableBuilder<List<dynamic>>(
+                      valueListenable: listStream,
+                      builder: (_, value, _) => SingleChildScrollView(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: value.length,
+                          itemBuilder: (_, index) { 
+                            return _buildBoardStream(value, index);
+                          }
+                        ),
+                      )
+                    ),
+                  ]
+                ),
               ),
             ),
           ],
@@ -109,68 +122,62 @@ class _LeaderboardState extends State<Leaderboard>
     if (index == 3) {
       return Divider();
     }
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Text(
-              "${value[index]['position']}. ${value[index]?["full_name"] ?? "-"}",
-              style: TextStyle(
-                fontSize: 20,
-                color: (value[index]?['id'] ?? -1) != meUserId ? Colors.black : const Color.fromARGB(255, 68, 193, 255)
-              ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          child: Text(
+            "${value[index]['position']}. ${value[index]?["full_name"] ?? "-"}",
+            style: TextStyle(
+              fontSize: 20,
+              color: (value[index]?['id'] ?? -1) != meUserId ? Colors.black : const Color.fromARGB(255, 68, 193, 255)
             ),
           ),
-          SizedBox(width: 15),
-          Row(
-            children: [
-              SvgPicture.asset('assets/top-money.svg', height: 20),
-              const SizedBox(width: 8),
-              Text(
-                "${value[index]?["amount"] ?? 0}",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.black, fontSize: 15),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+        SizedBox(width: 15),
+        Row(
+          children: [
+            SvgPicture.asset('assets/top-money.svg', height: 20),
+            const SizedBox(width: 8),
+            Text(
+              "${value[index]?["amount"] ?? 0}",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.black, fontSize: 15),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
   Widget _buildBoardGroup(dynamic value, int index) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Text(
-              "${value[index]['position']}. ${value[index]?["full_name"] ?? "-"}",
-              style: TextStyle(
-                fontSize: 20,
-                color: (value[index]?['id'] ?? -1) != meUserId ? Colors.black : const Color.fromARGB(255, 68, 193, 255)
-              ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          child: Text(
+            "${value[index]['position']}. ${value[index]?["full_name"] ?? "-"}",
+            style: TextStyle(
+              fontSize: 20,
+              color: (value[index]?['id'] ?? -1) != meUserId ? Colors.black : const Color.fromARGB(255, 68, 193, 255)
             ),
           ),
-          SizedBox(width: 15),
-          Row(
-            children: [
-              SvgPicture.asset('assets/top-money.svg', height: 20),
-              const SizedBox(width: 8),
-              Text(
-                "${value[index]?["amount"] ?? 0}",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.black, fontSize: 15),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+        SizedBox(width: 15),
+        Row(
+          children: [
+            SvgPicture.asset('assets/top-money.svg', height: 20),
+            const SizedBox(width: 8),
+            Text(
+              "${value[index]?["amount"] ?? 0}",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.black, fontSize: 15),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
