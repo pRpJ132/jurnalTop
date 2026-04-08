@@ -374,7 +374,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                 child: Text(
                   "Показать еще",
                   style: TextStyle(
-                    color: Colors.lightBlueAccent
+                    color: const Color.fromARGB(255, 26, 159, 243)
                   ),
                 ),
               ),

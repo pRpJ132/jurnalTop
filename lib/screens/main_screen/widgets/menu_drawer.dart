@@ -14,7 +14,7 @@ class CustomDrawer extends StatelessWidget {
           image: DecorationImage(
             colorFilter: ColorFilter.linearToSrgbGamma(),
             image: AssetImage('assets/background-draw.jpg'),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
           ),
         ),
         child: ValueListenableBuilder<int>(

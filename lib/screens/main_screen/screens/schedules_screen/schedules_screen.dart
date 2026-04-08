@@ -131,22 +131,27 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 55,
               children: [
                 IconButton(
                   onPressed: _prevMonth,
-                  icon: const Icon(Icons.chevron_left),
+                  icon: Icon(
+                    Icons.chevron_left,
+                    size: MediaQuery.of(context).size.width < 600 ? 25 : 45,
+                  ),
                 ),
                 Text(
                   DateFormat('MMMM yyyy', 'ru').format(currentMonth),
-                  style: const TextStyle(
-                    fontSize: 20,
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width < 600 ? 20 : 25,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 IconButton(
                   onPressed: _nextMonth,
-                  icon: const Icon(Icons.chevron_right),
+                  icon: Icon(
+                    Icons.chevron_right, 
+                    size: MediaQuery.of(context).size.width < 600 ? 25 : 45,
+                  ),
                 ),
               ],
             ),
