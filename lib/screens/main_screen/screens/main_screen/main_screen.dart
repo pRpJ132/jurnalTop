@@ -55,13 +55,25 @@ class _MainscreenState extends State<Mainscreen> {
 
   Widget _buildMobile() {
     return Column(
-      spacing: 25,
       children: [
         Attendance(),
+        SizedBox(height: 25),
         AverageProgress(),
+        SizedBox(height: 25),
         HomeworkMenu(),
-        ReitingInfoMenu(),
-        Leaderboard(),
+        SizedBox(height: 25),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8)
+          ),
+          child: Column(
+            children: [
+              ReitingInfoMenu(),
+              Leaderboard(),
+            ],
+          )
+        ),
       ],
     );
   }
