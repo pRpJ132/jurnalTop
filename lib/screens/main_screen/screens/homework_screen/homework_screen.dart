@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/models/homework.dart';
 import 'package:my_app/network/api_client.dart';
 import 'package:my_app/services/user_storage.dart';
 
@@ -31,7 +32,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
 
   ValueNotifier<int> typeSpace = ValueNotifier(0);
 
-  final Map<int, List<dynamic>> homeworkByStatus = {
+  final Map<int, List<HomeworkItem>> homeworkByStatus = {
     0: [],
     1: [],
     2: [],
@@ -69,7 +70,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       final response = await ApiClient.get(strResp);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        homeworkByStatus[status] = data;
+        homeworkByStatus[status] = data.map<HomeworkItem>((el) => HomeworkItem.fromJson(el)).toList();
         setState(() => homeworkByStatus);
       }
     }
@@ -210,10 +211,10 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     );
   }
 
-  Widget _buildHomeworkItem(dynamic e) {
-    final status = e['status'] as int;
+  Widget _buildHomeworkItem(HomeworkItem e) {
+    final status = e.status;
     final color = _getStatusColor(status);
-    final mark = e['homework_stud']?['mark'];
+    final mark = e.homeworkStud?.mark;
 
     return GestureDetector(
       onTap: () => _showDetail(e),
@@ -247,7 +248,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              e['name_spec'] ?? '',
+                              e.nameSpec,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 12.5,
@@ -277,7 +278,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        e['theme'] ?? '',
+                        e.theme,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -293,7 +294,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                           const SizedBox(width: 4),
                           Text(
                             DateFormat('dd.MM.yyyy')
-                                .format(DateTime.parse(e['completion_time'])),
+                                .format(e.completionTime ?? DateTime.now()),
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey.shade500,
@@ -301,7 +302,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                           ),
                           const Spacer(),
                           Text(
-                            e['fio_teach'] ?? '',
+                            e.fioTeach,
                             style: TextStyle(
                               fontSize: 10,
                               color: Colors.grey.shade500,
@@ -311,7 +312,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                         ],
                       ),
                       SizedBox(height: 2),
-                      if (e['homework_stud'] != null && status != 0) ...[
+                      if (e.homeworkStud != null && status != 0) ...[
                         Row(
                           children: [
                             Icon(Icons.check,
@@ -319,7 +320,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             const SizedBox(width: 4),
                             Text(
                               DateFormat('dd.MM.yyyy')
-                                  .format(DateTime.parse(e['homework_stud']['creation_time'])),
+                                  .format(e.homeworkStud?.creationTime ?? DateTime.now()),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.grey.shade500,
@@ -422,11 +423,10 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     );
   }
 
-  void _showDetail(dynamic e) {
-    final status = e['status'] as int;
+  void _showDetail(HomeworkItem e) {
+    final status = e.status;
     final color = _getStatusColor(status);
-    final stud = e['homework_stud'];
-    final hwComment = e['homework_comment'];
+    final stud = e.homeworkStud;
 
     showModalBottomSheet(
       context: context,
@@ -488,7 +488,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                       padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
                       children: [
                         Text(
-                          e['name_spec'] ?? '',
+                          e.nameSpec,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -496,7 +496,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          e['theme'] ?? '',
+                          e.theme,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade700,
@@ -508,40 +508,36 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                           Icons.person_outline,
                           Colors.grey,
                           "Преподаватель",
-                          e['fio_teach'] ?? '—',
+                          e.fioTeach,
                         ),
                         const SizedBox(height: 12),
                         _detailRow(
                           Icons.calendar_today_outlined,
                           Colors.grey,
                           "Срок сдачи",
-                          DateFormat('dd MMMM yyyy', 'ru').format(
-                              DateTime.parse(e['completion_time'])),
+                          DateFormat('dd MMMM yyyy', 'ru').format(e.completionTime ?? DateTime.now()),
                         ),
                         const SizedBox(height: 12),
                         _detailRow(
                           Icons.add_circle_outline,
                           Colors.lightBlueAccent,
                           "Дата создания",
-                          DateFormat('dd MMMM yyyy', 'ru').format(
-                              DateTime.parse(e['creation_time'])),
+                          DateFormat('dd MMMM yyyy', 'ru').format(e.creationTime ?? DateTime.now()),
                         ),
                         const SizedBox(height: 12),
                         _detailRow(
                           Icons.warning_amber_outlined,
                           Colors.red,
                           "Дедлайн",
-                          DateFormat('dd MMMM yyyy', 'ru').format(
-                              DateTime.parse(e['overdue_time'])),
+                          DateFormat('dd MMMM yyyy', 'ru').format(e.overdueTime ?? DateTime.now()),
                         ),
-                        if (e['homework_stud'] != null && status != 0) ...[
+                        if (e.homeworkStud != null && status != 0) ...[
                           const SizedBox(height: 12),
                           _detailRow(
                             Icons.check,
                             Colors.green,
                             "Сдано",
-                            DateFormat('dd MMMM yyyy', 'ru').format(
-                                DateTime.parse(e['homework_stud']['creation_time'])),
+                            DateFormat('dd MMMM yyyy', 'ru').format(e.homeworkStud?.creationTime ?? DateTime.now()),
                           ),
                         ] else if (status == 0) ...[
                           const SizedBox(height: 12),
@@ -564,26 +560,24 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          if (stud['mark'] != null)
+                          if (stud.mark != null)
                             _detailRow(
                               Icons.star,
                               Colors.amber.shade500,
                               "Оценка",
-                              "${stud['mark']}",
+                              "${stud.mark}",
                               valueColor: Colors.amber.shade500,
                             ),
-                          if (stud['stud_answer'] != null &&
-                              (stud['stud_answer'] as String)
-                                  .isNotEmpty) ...[
+                          if (stud.studAnswer != null && stud.studAnswer!.isNotEmpty) ...[
                             const SizedBox(height: 10),
                             _detailRow(
                               Icons.text_snippet_outlined,
                               Colors.grey,
                               "Текст ответа",
-                              stud['stud_answer'],
+                              stud.studAnswer ?? "-",
                             ),
                           ],
-                          if (stud['file_path'] != null) ...[
+                          if (stud.filePath != null) ...[
                             const SizedBox(height: 10),
                             _detailRow(
                               Icons.attach_file,
@@ -595,10 +589,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                           ],
                         ],
 
-                        if (hwComment != null &&
-                            hwComment['text_comment'] != null &&
-                            (hwComment['text_comment'] as String)
-                                .isNotEmpty) ...[
+                        if (e.homeworkComment != null && e.homeworkComment?.textComment != null && e.homeworkComment!.textComment!.isNotEmpty) ...[
                           const Divider(height: 28),
                           const Text(
                             "Комментарий преподавателя",
@@ -617,15 +608,14 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                                   color: Colors.blue.shade100),
                             ),
                             child: SelectableText(
-                              hwComment['text_comment'],
+                              e.homeworkComment?.textComment ?? "-",
                               style:
                                   const TextStyle(fontSize: 13),
                             ),
                           ),
                         ],
 
-                        if (e['comment'] != null &&
-                            (e['comment'] as String).isNotEmpty) ...[
+                        if (e.comment.isNotEmpty) ...[
                           const Divider(height: 28),
                           const Text(
                             "Примечание к заданию",
@@ -644,7 +634,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                                   color: Colors.orange.shade100),
                             ),
                             child: SelectableText(
-                              e['comment'],
+                              e.comment,
                               style:
                                   const TextStyle(fontSize: 13),
                             ),
