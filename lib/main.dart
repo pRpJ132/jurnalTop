@@ -17,6 +17,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFF9AC9C0),
+        progressIndicatorTheme: ProgressIndicatorThemeData(
+          color: Colors.red,
+        ),
       ),
       debugShowCheckedModeBanner: false, 
       home: Slpashscreen()

@@ -25,12 +25,15 @@ class _SpacesItem {
 
 class _HomeworkScreenState extends State<HomeworkScreen> {
   final _SpacesItem _basicItem = _SpacesItem(name: "Все", specId: -1);
-  late ValueNotifier<List<_SpacesItem>> nameSpaces = ValueNotifier([_basicItem]);
-  late ValueNotifier<_SpacesItem> selectedItem = ValueNotifier(_basicItem);
+  late final ValueNotifier<List<_SpacesItem>> nameSpaces = ValueNotifier([_basicItem]);
+  late final ValueNotifier<_SpacesItem> selectedItem = ValueNotifier(_basicItem);
 
   final ValueNotifier<bool> _isLoading = ValueNotifier(false);
 
-  ValueNotifier<int> typeSpace = ValueNotifier(0);
+  final ValueNotifier<int> _typeSpace = ValueNotifier(0);
+
+  final ValueNotifier<bool> _isLoadingPage = ValueNotifier(false);
+
 
   final Map<int, List<HomeworkItem>> homeworkByStatus = {
     0: [],
@@ -38,13 +41,30 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     2: [],
     3: [],
   };
-  final ValueNotifier<Map<int, int>> homeworkCounts = ValueNotifier({});
+  Map<int, int> pageByStatus = {
+    0: 1,
+    1: 1,
+    2: 1,
+    3: 1,
+  };
+  final ValueNotifier<Map<int, int>> _homeworkCounts = ValueNotifier({});
   final Map<int, bool> _collapsed = {
     0: true,
     1: true,
     2: true,
     3: false,
   };
+
+  @override
+  void dispose() {
+    nameSpaces.dispose();
+    selectedItem.dispose();
+    _isLoading.dispose();
+    _typeSpace.dispose();
+    _isLoadingPage.dispose();
+    _homeworkCounts.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -63,16 +83,32 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   Future<void> _loadHomework() async {
     final groupId = await UserStorage.getGroupId();
     for (var status in [0, 1, 2, 3]) {
-      String strResp = "homework/operations/list?page=1&status=$status&type=${typeSpace.value}&group_id=$groupId";
+      String strResp = "homework/operations/list?page=${pageByStatus[status]}&status=$status&type=${_typeSpace.value}&group_id=$groupId";
       if (selectedItem.value.name != "Все") {
         strResp += "&spec_id=${selectedItem.value.specId}";
       }
       final response = await ApiClient.get(strResp);
       if (response.statusCode == 200) {
+        pageByStatus[status] = pageByStatus[status] !+ 1;
         final data = jsonDecode(response.body);
         homeworkByStatus[status] = data.map<HomeworkItem>((el) => HomeworkItem.fromJson(el)).toList();
         setState(() => homeworkByStatus);
       }
+    }
+  }
+
+  Future<void> loadPageHomework(int status) async {
+    final groupId = await UserStorage.getGroupId();
+    String strResp = "homework/operations/list?page=${pageByStatus[status]}&status=$status&type=${_typeSpace.value}&group_id=$groupId";
+    if (selectedItem.value.name != "Все") {
+      strResp += "&spec_id=${selectedItem.value.specId}";
+    }
+    final response = await ApiClient.get(strResp);
+    if (response.statusCode == 200) {
+      pageByStatus[status] = pageByStatus[status] !+ 1;
+      final data = jsonDecode(response.body);
+      homeworkByStatus[status]?.addAll(data.map<HomeworkItem>((el) => HomeworkItem.fromJson(el)).toList());
+      setState(() => homeworkByStatus);
     }
   }
 
@@ -92,7 +128,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
 
   Future<void> _loadCounts() async {
     final groupId = await UserStorage.getGroupId();
-    String strResp = "count/homework?type=${typeSpace.value}&group_id=$groupId";
+    String strResp = "count/homework?type=${_typeSpace.value}&group_id=$groupId";
     if (selectedItem.value.name != "Все") {
       strResp += "&spec_id=${selectedItem.value.specId}";
     }
@@ -103,8 +139,8 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       for (var item in data) {
         temp[item['counter_type']] = item['counter'];
       }
-      homeworkCounts.value = {};
-      homeworkCounts.value = temp;
+      _homeworkCounts.value = {};
+      _homeworkCounts.value = temp;
     }
   }
 
@@ -158,7 +194,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     final isCollapsed = _collapsed[status] ?? false;
 
     return ValueListenableBuilder(
-      valueListenable: homeworkCounts,
+      valueListenable: _homeworkCounts,
       builder: (_, homeworkCountsValue, _) {
         final count = homeworkCountsValue[status] ?? homeworkByStatus[status]!.length;
         return GestureDetector(
@@ -369,17 +405,28 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
           firstChild: Column(
             children: [
               ...list.map(_buildHomeworkItem),
+              if (list.length < (_homeworkCounts.value[status] ?? 0))
               TextButton(
                 style: TextButton.styleFrom(
                   overlayColor: const Color.fromARGB(255, 30, 121, 163),
                   elevation: 0
                 ),
-                onPressed: () {},
-                child: Text(
-                  "Показать еще",
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 26, 159, 243)
-                  ),
+                onPressed: () async {
+                  if (_isLoadingPage.value) return;
+                  _isLoadingPage.value = true;
+                  await loadPageHomework(status);
+                  _isLoadingPage.value = false;
+                },
+                child: ValueListenableBuilder(
+                  valueListenable: _isLoadingPage,
+                  builder: (_, isLoadingPageValue, _) {
+                    return !isLoadingPageValue ? Text(
+                      "Показать еще",
+                      style: TextStyle(
+                        color: const Color.fromARGB(255, 26, 159, 243)
+                      ),
+                    ) : CircularProgressIndicator();
+                  }
                 ),
               ),
             ],
@@ -771,14 +818,14 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                       ),
                     ),
                     ValueListenableBuilder(
-                      valueListenable: typeSpace,
+                      valueListenable: _typeSpace,
                       builder: (_, typeSpaceValue, _) {
                         return TextButton(
                           style: TextButton.styleFrom(
                             overlayColor: Colors.white
                           ),
                           onPressed: ()  {
-                            typeSpace.value == 0 ? typeSpace.value = 1 : typeSpace.value = 0;
+                            _typeSpace.value == 0 ? _typeSpace.value = 1 : _typeSpace.value = 0;
                             _loadAll();
                           }, 
                           child: Text(
