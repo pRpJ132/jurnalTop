@@ -47,6 +47,10 @@ dependencies:
   json_serializable: ^6.13.1
   json_annotation: ^4.11.0
   build_runner: ^2.13.1
+  path_provider: ^2.1.5
+  open_filex: ^4.7.0
+  ultimate_flutter_icons: ^1.4.0
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
@@ -74,7 +78,6 @@ flutter:
     - assets/logo.png
     - assets/top-money.svg
     - assets/background-draw.jpg
-    - assets/red-volna.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

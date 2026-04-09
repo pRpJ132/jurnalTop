@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/models/homework.dart';
 import 'package:my_app/network/api_client.dart';
+import 'package:my_app/screens/main_screen/screens/homework_screen/widgets/file_card.dart';
 import 'package:my_app/services/user_storage.dart';
 
 class HomeworkScreen extends StatefulWidget {
@@ -533,164 +534,190 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                     ),
                   ),
                   Expanded(
-                    child: ListView(
-                      controller: controller,
+                    child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
-                      children: [
-                        Text(
-                          e.nameSpec,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
+                      child: Column(
+                        crossAxisAlignment: .start,
+                        children: [
+                          Text(
+                            e.nameSpec,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          e.theme,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade700,
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: .spaceBetween,
+                            children: [
+                              Text(
+                                e.theme,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                              if (e.filePath != null) FileCard(url: e.filePath!),
+                            ],
                           ),
-                        ),
-                        const Divider(height: 28),
-
-                        _detailRow(
-                          Icons.person_outline,
-                          Colors.grey,
-                          "Преподаватель",
-                          e.fioTeach,
-                        ),
-                        const SizedBox(height: 12),
-                        _detailRow(
-                          Icons.calendar_today_outlined,
-                          Colors.grey,
-                          "Срок сдачи",
-                          DateFormat('dd MMMM yyyy', 'ru').format(e.completionTime ?? DateTime.now()),
-                        ),
-                        const SizedBox(height: 12),
-                        _detailRow(
-                          Icons.add_circle_outline,
-                          Colors.lightBlueAccent,
-                          "Дата создания",
-                          DateFormat('dd MMMM yyyy', 'ru').format(e.creationTime ?? DateTime.now()),
-                        ),
-                        const SizedBox(height: 12),
-                        _detailRow(
-                          Icons.warning_amber_outlined,
-                          Colors.red,
-                          "Дедлайн",
-                          DateFormat('dd MMMM yyyy', 'ru').format(e.overdueTime ?? DateTime.now()),
-                        ),
-                        if (e.homeworkStud != null && status != 0) ...[
+                          const Divider(height: 28),
+                      
+                          _detailRow(
+                            Icons.person_outline,
+                            Colors.grey,
+                            "Преподаватель",
+                            e.fioTeach,
+                          ),
                           const SizedBox(height: 12),
                           _detailRow(
-                            Icons.check,
-                            Colors.green,
-                            "Сдано",
-                            DateFormat('dd MMMM yyyy', 'ru').format(e.homeworkStud?.creationTime ?? DateTime.now()),
+                            Icons.calendar_today_outlined,
+                            Colors.grey,
+                            "Срок сдачи",
+                            DateFormat('dd MMMM yyyy', 'ru').format(e.completionTime ?? DateTime.now()),
                           ),
-                        ] else if (status == 0) ...[
                           const SizedBox(height: 12),
-                          Text(
-                            "Истекший",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 11,
-                            ),
-                          )
-                        ],
-
-                        if (stud != null) ...[
-                          const Divider(height: 28),
-                          const Text(
-                            "Ваш ответ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
+                          _detailRow(
+                            Icons.add_circle_outline,
+                            Colors.lightBlueAccent,
+                            "Дата создания",
+                            DateFormat('dd MMMM yyyy', 'ru').format(e.creationTime ?? DateTime.now()),
                           ),
-                          const SizedBox(height: 10),
-                          if (stud.mark != null)
+                          const SizedBox(height: 12),
+                          _detailRow(
+                            Icons.warning_amber_outlined,
+                            Colors.red,
+                            "Дедлайн",
+                            DateFormat('dd MMMM yyyy', 'ru').format(e.overdueTime ?? DateTime.now()),
+                          ),
+                          if (e.homeworkStud != null && status != 0) ...[
+                            const SizedBox(height: 12),
                             _detailRow(
-                              Icons.star,
-                              Colors.amber.shade500,
-                              "Оценка",
-                              "${stud.mark}",
-                              valueColor: Colors.amber.shade500,
+                              Icons.check,
+                              Colors.green,
+                              "Сдано",
+                              DateFormat('dd MMMM yyyy', 'ru').format(e.homeworkStud?.creationTime ?? DateTime.now()),
                             ),
-                          if (stud.studAnswer != null && stud.studAnswer!.isNotEmpty) ...[
+                          ] else if (status == 0) ...[
+                            const SizedBox(height: 12),
+                            Text(
+                              "Истекший",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 11,
+                              ),
+                            )
+                          ],
+                      
+                          if (stud != null) ...[
+                            const Divider(height: 28),
+                            const Text(
+                              "Ваш ответ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
                             const SizedBox(height: 10),
-                            _detailRow(
-                              Icons.text_snippet_outlined,
-                              Colors.grey,
-                              "Текст ответа",
-                              stud.studAnswer ?? "-",
+                            if (stud.mark != null)
+                              _detailRow(
+                                Icons.star,
+                                Colors.amber.shade500,
+                                "Оценка",
+                                "${stud.mark}",
+                                valueColor: Colors.amber.shade500,
+                              ),
+                            if (stud.studAnswer != null && stud.studAnswer!.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              _detailRow(
+                                Icons.text_snippet_outlined,
+                                Colors.grey,
+                                "Текст ответа",
+                                stud.studAnswer ?? "-",
+                              ),
+                            ],
+                            if (stud.filePath != null) ...[
+                              const SizedBox(height: 10),
+                              _detailRow(
+                                Icons.attach_file,
+                                Colors.grey,
+                                "Файл ответа",
+                                "Прикреплён",
+                                valueColor: Colors.blue.shade700,
+                              ),
+                            ],
+                          ],
+                      
+                          if (e.homeworkComment != null && e.homeworkComment?.textComment != null && e.homeworkComment!.textComment!.isNotEmpty) ...[
+                            const Divider(height: 28),
+                            const Text(
+                              "Комментарий преподавателя",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade50,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                    color: Colors.blue.shade100),
+                              ),
+                              child: SelectableText(
+                                e.homeworkComment?.textComment ?? "-",
+                                style:
+                                    const TextStyle(fontSize: 13),
+                              ),
                             ),
                           ],
-                          if (stud.filePath != null) ...[
-                            const SizedBox(height: 10),
-                            _detailRow(
-                              Icons.attach_file,
-                              Colors.grey,
-                              "Файл ответа",
-                              "Прикреплён",
-                              valueColor: Colors.blue.shade700,
+                      
+                          if (e.comment.isNotEmpty) ...[
+                            const Divider(height: 28),
+                            const Text(
+                              "Примечание к заданию",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade50,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                    color: Colors.orange.shade100),
+                              ),
+                              child: SelectableText(
+                                e.comment,
+                                style:
+                                    const TextStyle(fontSize: 13),
+                              ),
                             ),
                           ],
-                        ],
-
-                        if (e.homeworkComment != null && e.homeworkComment?.textComment != null && e.homeworkComment!.textComment!.isNotEmpty) ...[
-                          const Divider(height: 28),
-                          const Text(
-                            "Комментарий преподавателя",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                  color: Colors.blue.shade100),
-                            ),
-                            child: SelectableText(
-                              e.homeworkComment?.textComment ?? "-",
-                              style:
-                                  const TextStyle(fontSize: 13),
+                          if(status == 3 || status == 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 18.0),
+                            child: Center(
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 33, 138, 203)
+                                ),
+                                onPressed: () {}, 
+                                child: Text(
+                                  "Загрузить задание",
+                                  style: TextStyle(
+                                    color: Colors.white
+                                  ),
+                                )
+                              ),
                             ),
                           ),
                         ],
-
-                        if (e.comment.isNotEmpty) ...[
-                          const Divider(height: 28),
-                          const Text(
-                            "Примечание к заданию",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade50,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                  color: Colors.orange.shade100),
-                            ),
-                            child: SelectableText(
-                              e.comment,
-                              style:
-                                  const TextStyle(fontSize: 13),
-                            ),
-                          ),
-                        ],
-                      ],
+                      ),
                     ),
                   ),
                 ],
@@ -709,26 +736,28 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       children: [
         Icon(icon, size: 16, color: colorIcon),
         const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey.shade500,
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey.shade500,
+                ),
               ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: valueColor,
+              const SizedBox(height: 1),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: valueColor,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -770,16 +799,16 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                       builder: (_, nameSpacesVal, _) => ValueListenableBuilder(
                         valueListenable: selectedItem,
                         builder: (_, selectedItemValue, _) {
-                          return PopupMenuButton<_SpacesItem>(
+                          return PopupMenuButton<int>(
                             popUpAnimationStyle: AnimationStyle(
                               duration: Duration(milliseconds: 350),
                               curve: Curves.easeOut,
                               reverseCurve: Curves.easeIn,
                               reverseDuration: Duration(milliseconds: 100)
                             ),
-                            initialValue: selectedItemValue,
-                            onSelected: (_SpacesItem item) {
-                              selectedItem.value = item;
+                            initialValue: selectedItemValue.specId,
+                            onSelected: (int specId) {
+                              selectedItem.value = nameSpacesVal.firstWhere((el) => el.specId == specId);
                               pageByStatus = {
                                 0: 1,
                                 1: 1,
@@ -813,8 +842,8 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             ),
                             itemBuilder: (BuildContext context) {
                               return nameSpacesVal.map((el) {
-                                return PopupMenuItem<_SpacesItem>(
-                                  value: el,
+                                return PopupMenuItem<int>(
+                                  value: el.specId,
                                   child: Text(el.name),
                                 );
                               }).toList();
@@ -826,27 +855,29 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                     ValueListenableBuilder(
                       valueListenable: _typeSpace,
                       builder: (_, typeSpaceValue, _) {
-                        return TextButton(
-                          style: TextButton.styleFrom(
-                            overlayColor: Colors.white
-                          ),
-                          onPressed: ()  {
-                            _typeSpace.value == 0 ? _typeSpace.value = 1 : _typeSpace.value = 0;
-                            pageByStatus = {
-                              0: 1,
-                              1: 1,
-                              2: 1,
-                              3: 1,
-                            };
-                            _loadAll();
-                          }, 
-                          child: Text(
-                            typeSpaceValue == 0 ? "Лабораторные работы" : "Домашние задания",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 13,
+                        return Flexible(
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              overlayColor: Colors.white
                             ),
-                          )
+                            onPressed: ()  {
+                              _typeSpace.value == 0 ? _typeSpace.value = 1 : _typeSpace.value = 0;
+                              pageByStatus = {
+                                0: 1,
+                                1: 1,
+                                2: 1,
+                                3: 1,
+                              };
+                              _loadAll();
+                            }, 
+                            child: Text(
+                              typeSpaceValue == 0 ? "Лабораторные работы" : "Домашние задания",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 13,
+                              ),
+                            )
+                          ),
                         );
                       }
                     ),

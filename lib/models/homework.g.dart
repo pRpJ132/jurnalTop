@@ -29,6 +29,7 @@ HomeworkItem _$HomeworkItemFromJson(Map<String, dynamic> json) => HomeworkItem(
   homeworkStud: json['homework_stud'] == null
       ? null
       : HomeworkStud.fromJson(json['homework_stud'] as Map<String, dynamic>),
+  filePath: json['file_path'] as String?,
 );
 
 Map<String, dynamic> _$HomeworkItemToJson(HomeworkItem instance) =>
@@ -43,4 +44,5 @@ Map<String, dynamic> _$HomeworkItemToJson(HomeworkItem instance) =>
       'homework_stud': instance.homeworkStud,
       'theme': instance.theme,
       'status': instance.status,
+      'file_path': instance.filePath,
     };

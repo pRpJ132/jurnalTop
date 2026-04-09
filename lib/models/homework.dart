@@ -16,6 +16,7 @@ class HomeworkItem {
   HomeworkStud? homeworkStud;
   String theme;
   int status;
+  String? filePath;
 
   HomeworkItem({
     required this.comment,
@@ -27,7 +28,8 @@ class HomeworkItem {
     required this.homeworkComment,
     required this.theme,
     required this.status,
-    required this.homeworkStud
+    required this.homeworkStud,
+    required this.filePath
   });
 
   factory HomeworkItem.fromJson(Map<String, dynamic> json) =>

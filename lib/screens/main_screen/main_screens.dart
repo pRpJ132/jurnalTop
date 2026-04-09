@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/screens/login_screen.dart';
+import 'package:my_app/screens/main_screen/screens/assessments_screen/assessments_screen.dart';
 import 'package:my_app/screens/main_screen/screens/homework_screen/homework_screen.dart';
 import 'package:my_app/screens/main_screen/screens/main_screen/main_screen.dart';
 import 'package:my_app/screens/main_screen/screens/schedules_screen/schedules_screen.dart';
@@ -26,7 +27,7 @@ class _MainscreensState extends State<Mainscreens> {
   List<Widget> pages = [
     Mainscreen(),
     SchedulesScreen(),
-    SizedBox.fromSize(),
+    AssessmentsScreen(),
     HomeworkScreen(),
     SizedBox.fromSize(),
     SizedBox.fromSize(),

@@ -59,7 +59,6 @@ class _SlpashscreenState extends State<Slpashscreen> {
       final response = await ApiClient.get("settings/user-info");
       if (response.statusCode == 200) {
         final data = await jsonDecode(response.body);
-        await UserStorage.clearAll();
         await UserStorage.saveUserInfo(
           data: data,
         );
