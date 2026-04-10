@@ -26,7 +26,7 @@ Widget _buildItem(String text, {void Function(String)? onSelect}) {
 Future<dynamic> showDialogCreateHomework(BuildContext context) {
   final controllerAnswer = TextEditingController();
   final controllerComment = TextEditingController();
-  int mark = 0;
+  int mark = 3;
 
   return showDialog(
     context: context, 
