@@ -22,19 +22,21 @@ class _AdvertisementsScreenState extends State<AdvertisementsScreen> {
   @override
   void initState() {
     super.initState();
-    _isLoading.value = true;
     loadLatestNew();
-    _isLoading.value = false;
-
   }
 
   void loadLatestNew() async {
-    final response = await ApiClient.get(
-      "news/operations/latest-news"
-    );
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
-      _latestNews.value = body.map<LatestNews>((el) => LatestNews.fromJson(el)).toList();
+    try {
+      _isLoading.value = true;
+      final response = await ApiClient.get(
+        "news/operations/latest-news"
+      );
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        _latestNews.value = body.map<LatestNews>((el) => LatestNews.fromJson(el)).toList();
+      }
+    } finally {
+      _isLoading.value = false;
     }
   }
 
@@ -58,6 +60,7 @@ class _AdvertisementsScreenState extends State<AdvertisementsScreen> {
                   "Объявления".toUpperCase(),
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
+                SizedBox(height: 15),
                 ValueListenableBuilder(
                   valueListenable: _latestNews,
                   builder: (_, latestNewsValue, _) {
@@ -65,21 +68,29 @@ class _AdvertisementsScreenState extends State<AdvertisementsScreen> {
                       child: ValueListenableBuilder(
                         valueListenable: _isOpen,
                         builder: (_, isOpenValue, _) {
-                          return Wrap(
-                            alignment: WrapAlignment.center,
-                            runSpacing: 20,
-                            children: latestNewsValue.map((el) => GestureDetector(
+                          return GridView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: MediaQuery.of(context).size.width < 600 ? 1 : 2,
+                              crossAxisSpacing: 15,
+                              mainAxisSpacing: 15,
+                              childAspectRatio: 2,
+                            ),
+                            itemCount: latestNewsValue.length,
+                            itemBuilder: (context, index) => GestureDetector(
                               onTap: () async {
                                 if (isOpenValue) return;
                                 _isOpen.value = true;
-                                await _openNewsDetail(el);
+                                await _openNewsDetail(latestNewsValue[index]);
                                 _isOpen.value = false;
                               },
                               child: Container(
-                                width: double.infinity,
+                                width: MediaQuery.of(context).size.width < 600 ? double.infinity : 350,
                                 height: 150,
                                 decoration: BoxDecoration(
-                                  color: el.viewed
+                                  color: latestNewsValue[index].viewed
                                       ? const Color.fromARGB(117, 243, 243, 243)
                                       : Colors.white,
                                   borderRadius: BorderRadius.circular(6),
@@ -92,16 +103,16 @@ class _AdvertisementsScreenState extends State<AdvertisementsScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(el.theme),
+                                      Text(latestNewsValue[index].theme),
                                       Spacer(),
                                       Text(
-                                        DateFormat('dd MMMM yyyy', 'ru').format(el.time),
+                                        DateFormat('dd MMMM yyyy', 'ru').format(latestNewsValue[index].time),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                            )).toList()
+                            ),
                           );
                         }
                       ),
@@ -118,22 +129,13 @@ class _AdvertisementsScreenState extends State<AdvertisementsScreen> {
 
   Future<void> _openNewsDetail(LatestNews el) async {
     try {
-      final response = await ApiClient.get(
-        "news/operations/detail-news?news_id=${el.idBbs}",
-      );
       ApiClient.post("news/operations/set-view", {"news_id": el.idBbs});
       el.viewed = true;
 
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body);
-
-        showNewsDialog(
-          context,
-          body['theme'],
-          body['text_bbs'],
-          DateTime.parse(body['time']),
-        );
-      }
+      showNewsDialog(
+        context,
+        el.idBbs,
+      );
     } catch (e) {
       logger.e(e);
     }
