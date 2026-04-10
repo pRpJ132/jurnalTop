@@ -20,6 +20,11 @@ class MyApp extends StatelessWidget {
         progressIndicatorTheme: ProgressIndicatorThemeData(
           color: Colors.red,
         ),
+        textSelectionTheme: TextSelectionThemeData(
+          selectionColor: Colors.blue.withOpacity(0.3),
+          selectionHandleColor: Colors.blue,
+          cursorColor: const Color.fromARGB(255, 52, 50, 50),
+        ),
       ),
       debugShowCheckedModeBanner: false, 
       home: Slpashscreen()

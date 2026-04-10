@@ -51,6 +51,7 @@ dependencies:
   open_filex: ^4.7.0
   ultimate_flutter_icons: ^1.4.0
   path: ^1.9.1
+  mask_text_input_formatter: ^2.9.0
 
 dev_dependencies:
   flutter_test:
