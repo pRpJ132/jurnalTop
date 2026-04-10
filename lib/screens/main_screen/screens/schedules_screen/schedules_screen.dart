@@ -122,12 +122,8 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "РАСПИСАНИЕ",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 19,
-                fontWeight: FontWeight.w600
-              ),
+              "Расписание".toUpperCase(),
+              style: Theme.of(context).textTheme.headlineLarge,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

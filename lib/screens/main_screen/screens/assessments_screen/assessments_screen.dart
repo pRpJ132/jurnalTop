@@ -133,11 +133,8 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
                 Padding(
                   padding: const EdgeInsets.only(left: 9.0, top: 14),
                   child: Text(
-                    "ОЦЕНКИ",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold
-                    ),
+                    "Оценки".toUpperCase(),
+                    style: Theme.of(context).textTheme.headlineLarge,
                   ),
                 ),
                 Flexible(

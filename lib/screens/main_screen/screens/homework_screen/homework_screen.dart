@@ -265,27 +265,25 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     final statuses = [3, 2, 1, 0];
 
     final hasAny = statuses.any((s) => homeworkByStatus[s]!.isNotEmpty);
-    if (!hasAny) return _buildEmpty();
+    if (!hasAny) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.assignment_outlined, size: 52, color: Colors.grey.shade300),
+            const SizedBox(height: 12),
+            Text(
+              "Нет заданий",
+              style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: statuses.map(_buildSection).toList(),
-    );
-  }
-
-  Widget _buildEmpty() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.assignment_outlined, size: 52, color: Colors.grey.shade300),
-          const SizedBox(height: 12),
-          Text(
-            "Нет заданий",
-            style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
-          ),
-        ],
-      ),
     );
   }
 
@@ -307,13 +305,9 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 7, bottom: 10),
-                  child: const Text(
-                    "ДОМАШНИЕ ЗАДАНИЯ",
-                    style: TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.5,
-                    ),
+                  child: Text(
+                    "Домашние задания".toUpperCase(),
+                    style: Theme.of(context).textTheme.headlineLarge,
                   ),
                 ),
           

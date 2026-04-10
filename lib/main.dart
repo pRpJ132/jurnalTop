@@ -25,6 +25,14 @@ class MyApp extends StatelessWidget {
           selectionHandleColor: Colors.blue,
           cursorColor: const Color.fromARGB(255, 52, 50, 50),
         ),
+        textTheme: const TextTheme(
+          headlineLarge: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            letterSpacing: 0.5
+          ),
+        ),
       ),
       debugShowCheckedModeBanner: false, 
       home: Slpashscreen()
