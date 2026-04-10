@@ -82,6 +82,7 @@ class _ReviewsStudentScreenState extends State<ReviewsStudentScreen> {
                             )
                           ),
                           child: Column(
+                            crossAxisAlignment: .start,
                             mainAxisSize: .min,
                             children: [
                               Row(
@@ -101,6 +102,7 @@ class _ReviewsStudentScreenState extends State<ReviewsStudentScreen> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
+                                    textAlign: TextAlign.start,
                                     el.message
                                   ),
                                 ),
