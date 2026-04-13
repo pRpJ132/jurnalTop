@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:my_app/screens/login_screen.dart';
 import 'package:my_app/screens/main_screen/screens/advertisements_screen/advertisements_screen.dart';
 import 'package:my_app/screens/main_screen/screens/assessments_screen/assessments_screen.dart';
+import 'package:my_app/screens/main_screen/screens/awards_screen/awards_screen.dart';
 import 'package:my_app/screens/main_screen/screens/homework_screen/homework_screen.dart';
 import 'package:my_app/screens/main_screen/screens/main_screen/main_screen.dart';
 import 'package:my_app/screens/main_screen/screens/personal_account_srceen/personal_account_screen.dart';
@@ -34,7 +34,7 @@ class _MainscreensState extends State<Mainscreens> {
     HomeworkScreen(),
     SizedBox.fromSize(),
     AdvertisementsScreen(),
-    SizedBox.fromSize(),
+    AwardsScreen(),
     ReviewsStudentScreen(),
     PersonalAccountScreen(),
     SizedBox.fromSize(),
@@ -67,6 +67,29 @@ class _MainscreensState extends State<Mainscreens> {
   void dispose() {
     pageIndex.dispose();
     super.dispose();
+  }
+
+  Widget _buildContainerInfoPoint(String assetImage, String text) {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: const Color.fromARGB(255, 240, 240, 240),
+      ),
+      child: Row(
+        mainAxisSize: .min,
+        children: [
+          Image.asset(assetImage, height: 20),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.black, fontSize: 15),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -118,25 +141,25 @@ class _MainscreensState extends State<Mainscreens> {
               ),
             ),
             const SizedBox(width: 16),
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: const Color.fromARGB(255, 240, 240, 240),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgPicture.asset('assets/top-money.svg', height: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    "${topcoins + topgems}",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.black, fontSize: 15),
+            Row(
+              spacing: 20,
+              mainAxisSize: .min,
+              children: [
+                if (MediaQuery.of(context).size.width >= 600) ...[
+                  _buildContainerInfoPoint(
+                    "assets/top-coin.png",
+                    topcoins.toString(),
+                  ),
+                  _buildContainerInfoPoint(
+                    "assets/top-gem.png",
+                    topgems.toString(),
                   ),
                 ],
-              ),
+                _buildContainerInfoPoint(
+                  "assets/top-money.png",
+                  "${topcoins+topgems}"
+                ),
+              ],
             ),
           ],
         ),

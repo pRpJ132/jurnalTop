@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:my_app/network/api_client.dart';
 import 'package:my_app/services/user_storage.dart';
 
@@ -137,7 +136,7 @@ class _LeaderboardState extends State<Leaderboard>
         SizedBox(width: 15),
         Row(
           children: [
-            SvgPicture.asset('assets/top-money.svg', height: 20),
+            Image.asset('assets/top-money.png', height: 20),
             const SizedBox(width: 8),
             Text(
               "${value[index]?["amount"] ?? 0}",
@@ -167,7 +166,7 @@ class _LeaderboardState extends State<Leaderboard>
         SizedBox(width: 15),
         Row(
           children: [
-            SvgPicture.asset('assets/top-money.svg', height: 20),
+            Image.asset('assets/top-money.png', height: 20),
             const SizedBox(width: 8),
             Text(
               "${value[index]?["amount"] ?? 0}",

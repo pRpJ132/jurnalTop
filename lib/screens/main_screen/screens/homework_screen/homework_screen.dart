@@ -298,7 +298,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            padding: const EdgeInsets.all(8),
             child: Column(
               mainAxisSize: .min,
               crossAxisAlignment: CrossAxisAlignment.start,

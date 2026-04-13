@@ -111,7 +111,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
 
     return SingleChildScrollView(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
