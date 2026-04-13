@@ -25,6 +25,14 @@ class _AdvertisementsScreenState extends State<AdvertisementsScreen> {
     loadLatestNew();
   }
 
+  @override
+  void dispose() {
+    _isOpen.dispose();
+    _isLoading.dispose();
+    _latestNews.dispose();
+    super.dispose();
+  }
+
   void loadLatestNew() async {
     try {
       _isLoading.value = true;

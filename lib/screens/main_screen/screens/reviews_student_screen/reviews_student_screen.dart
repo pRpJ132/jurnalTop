@@ -22,6 +22,13 @@ class _ReviewsStudentScreenState extends State<ReviewsStudentScreen> {
     loadLatestNew();
   }
 
+  @override
+  void dispose() {
+    _reviewsStudent.dispose();
+    _isLoading.dispose();
+    super.dispose();
+  }
+
   void loadLatestNew() async {
     try {
       _isLoading.value = true;

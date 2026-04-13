@@ -5,6 +5,7 @@ import 'package:my_app/screens/main_screen/screens/assessments_screen/assessment
 import 'package:my_app/screens/main_screen/screens/awards_screen/awards_screen.dart';
 import 'package:my_app/screens/main_screen/screens/homework_screen/homework_screen.dart';
 import 'package:my_app/screens/main_screen/screens/main_screen/main_screen.dart';
+import 'package:my_app/screens/main_screen/screens/market_screen/market_screen.dart';
 import 'package:my_app/screens/main_screen/screens/personal_account_srceen/personal_account_screen.dart';
 import 'package:my_app/screens/main_screen/screens/reviews_student_screen/reviews_student_screen.dart';
 import 'package:my_app/screens/main_screen/screens/schedules_screen/schedules_screen.dart';
@@ -41,7 +42,7 @@ class _MainscreensState extends State<Mainscreens> {
     SizedBox.fromSize(),
     SizedBox.fromSize(),
     SizedBox.fromSize(),
-    SizedBox.fromSize(),
+    MarketScreen(),
   ];
 
   Future<void> initUserData() async {

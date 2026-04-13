@@ -22,6 +22,13 @@ class _PersonalAccountScreenState extends State<PersonalAccountScreen> {
     loadProfile();
   }
 
+  @override
+  void dispose() {
+    _isLoading.dispose();
+    _profile.dispose();
+    super.dispose();
+  }
+
   void loadProfile() async {
     try {
       _isLoading.value = true;
