@@ -35,6 +35,12 @@ class Cart extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteProduct(int id) async {
+    productStore.removeWhere((el) => el.id == id);
+    await CartProductDatabase().saveProducts(productStore);
+    notifyListeners();
+  }
+
   void setProduct(List<ProductStore> ps) {
     productStore = ps;
     notifyListeners();

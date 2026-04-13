@@ -93,6 +93,7 @@ class _MarketScreenState extends State<MarketScreen> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         if (!isMobile) ...[
+                          _headerButton("Магазин"),
                           _headerButton("Корзина"),
                           _headerButton("Мои покупки"),
                         ],

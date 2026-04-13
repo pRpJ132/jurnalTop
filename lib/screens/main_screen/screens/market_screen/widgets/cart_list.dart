@@ -52,67 +52,86 @@ Widget buildCartList(
                       border: Border.all(color: Colors.grey.shade300),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    child: Stack(
                       children: [
-                        Expanded(
-                          child: Image.network(
-                            product.url,
-                            fit: BoxFit.contain,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Image.network(
+                                product.url,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                                          
+                            const SizedBox(height: 8),
+                                          
+                            Text(
+                              product.title,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                                          
+                            const SizedBox(height: 5),
+                                          
+                            Text(
+                              "Количество: ${product.quantity}",
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                                          
+                            const SizedBox(height: 8),
+                                          
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 10,
+                              runSpacing: 5,
+                              children: product.prices?.map((el) {
+                                return balanceItem(
+                                  el.pointsSum.toString(),
+                                  el.pointTypeId == 1
+                                      ? "assets/top-coin.png"
+                                      : "assets/top-gem.png",
+                                );
+                              }).toList() ?? [],
+                            ),
+                            if (product.quantity - lengthProductCart > 0)
+                            Row(
+                              mainAxisAlignment: .center,
+                              children: [
+                                IconButton(
+                                  onPressed: () {}, 
+                                  icon: Icon(
+                                    CupertinoIcons.minus_circle,
+                                    size: 22,
+                                  )
+                                ),
+                                IconButton(
+                                  onPressed: () {}, 
+                                  icon: Icon(
+                                    CupertinoIcons.add_circled,
+                                    size: 22,
+                                  )
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () async {
+                              await cartValue.deleteProduct(product.id);
+                            }, 
+                            icon: Icon(
+                              CupertinoIcons.delete,
+                              color: Colors.red,
+                              size: 20
+                            )
                           ),
                         ),
-                  
-                        const SizedBox(height: 8),
-                  
-                        Text(
-                          product.title,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                  
-                        const SizedBox(height: 5),
-                  
-                        Text(
-                          "Количество: ${product.quantity}",
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                  
-                        const SizedBox(height: 8),
-                  
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 10,
-                          runSpacing: 5,
-                          children: product.prices?.map((el) {
-                            return balanceItem(
-                              el.pointsSum.toString(),
-                              el.pointTypeId == 1
-                                  ? "assets/top-coin.png"
-                                  : "assets/top-gem.png",
-                            );
-                          }).toList() ?? [],
-                        ),
-                        if (product.quantity - lengthProductCart > 0)
-                        Row(
-                          mainAxisAlignment: .center,
-                          children: [
-                            IconButton(
-                              onPressed: () {}, 
-                              icon: Icon(
-                                CupertinoIcons.minus_circle,
-                                size: 22,
-                              )
-                            ),
-                            IconButton(
-                              onPressed: () {}, 
-                              icon: Icon(
-                                CupertinoIcons.add_circled,
-                                size: 22,
-                              )
-                            ),
-                          ],
-                        )
                       ],
                     ),
                   );
