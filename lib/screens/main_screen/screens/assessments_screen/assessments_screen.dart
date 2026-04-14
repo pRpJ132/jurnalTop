@@ -15,7 +15,7 @@ class AssessmentsScreen extends StatefulWidget {
 }
 
 class _AssessmentsScreenState extends State<AssessmentsScreen> {
-  final ValueNotifier<List<StudentVisits>> _assessments = ValueNotifier([]);
+  static final ValueNotifier<List<StudentVisits>> _assessments = ValueNotifier([]);
   final ValueNotifier<bool> _isLoading = ValueNotifier(false);
 
   @override
@@ -26,9 +26,8 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     _isLoading.dispose();
-    _assessments.dispose();
+    super.dispose();
   }
 
   Future<void> _loadAssessments() async {
@@ -136,9 +135,9 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
               child: ValueListenableBuilder(
                 valueListenable: _isLoading,
                 builder: (_, isLoadingValue, _) {
-                  if (isLoadingValue) {
+                  if (isLoadingValue && _assessments.value.isEmpty) {
                     return Skeletonizer(
-                      enabled: isLoadingValue, 
+                      enabled: true, 
                       child: GridView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),

@@ -12,7 +12,7 @@ class AwardsScreen extends StatefulWidget {
 }
 
 class _AwardsScreenState extends State<AwardsScreen> {
-  final ValueNotifier<List<StudentAchievements>> _achievements = ValueNotifier([]);
+  static final ValueNotifier<List<StudentAchievements>> _achievements = ValueNotifier([]);
   final ValueNotifier<bool> _isLoading = ValueNotifier(false);
 
   @override
@@ -23,9 +23,8 @@ class _AwardsScreenState extends State<AwardsScreen> {
 
    @override
     void dispose() {
-      super.dispose();
       _isLoading.dispose();
-      _achievements.dispose();
+      super.dispose();
     }
 
   void _loadAll() async {
@@ -100,9 +99,9 @@ class _AwardsScreenState extends State<AwardsScreen> {
               child: ValueListenableBuilder(
                 valueListenable: _isLoading,
                 builder: (_, isLoadingValue, _) {
-                  if (isLoadingValue) {
+                  if (isLoadingValue && _achievements.value.isEmpty) {
                     return Skeletonizer(
-                      enabled: isLoadingValue,
+                      enabled: true,
                       child: GridView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),

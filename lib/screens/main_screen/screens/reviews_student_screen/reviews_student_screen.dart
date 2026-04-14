@@ -13,7 +13,7 @@ class ReviewsStudentScreen extends StatefulWidget {
 }
 
 class _ReviewsStudentScreenState extends State<ReviewsStudentScreen> {
-  final ValueNotifier<List<ReviewsStudent>> _reviewsStudent = ValueNotifier([]);
+  static final ValueNotifier<List<ReviewsStudent>> _reviewsStudent = ValueNotifier([]);
   final ValueNotifier<bool> _isLoading = ValueNotifier(false);
 
   @override
@@ -24,7 +24,6 @@ class _ReviewsStudentScreenState extends State<ReviewsStudentScreen> {
 
   @override
   void dispose() {
-    _reviewsStudent.dispose();
     _isLoading.dispose();
     super.dispose();
   }
@@ -70,7 +69,7 @@ class _ReviewsStudentScreenState extends State<ReviewsStudentScreen> {
               child: ValueListenableBuilder(
                 valueListenable: _isLoading,
                 builder: (_, isLoadingValue, _) {
-                  if(isLoadingValue) {
+                  if(isLoadingValue && _reviewsStudent.value.isEmpty) {
                     final reviewsList = List.generate(
                       10,
                       (index) => ReviewsStudent(
@@ -83,7 +82,7 @@ class _ReviewsStudentScreenState extends State<ReviewsStudentScreen> {
                     );
 
                     return Skeletonizer(
-                      enabled: isLoadingValue,
+                      enabled: true,
                       child: Column(
                         spacing: 20,
                         children: reviewsList
