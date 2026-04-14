@@ -311,13 +311,11 @@ final List<_FaqItem> _faqItems = [
                       ),
                     ),
                     Wrap(
+                      spacing: 15,
                       runSpacing: 20,
-                      children: _faqItems.map((item) {
-                        if (item.type == el) {
-                          return _buildCrossFade(item.title, item.description);
-                        }
-                        return SizedBox.shrink();
-                      }).toList()
+                      children: _faqItems.where((item) => el == item.type)
+                        .map((item) => _buildCrossFade(item.title, item.description))
+                        .toList()
                     ),
                   ],
                 ),
