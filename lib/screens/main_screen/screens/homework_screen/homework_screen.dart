@@ -39,7 +39,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   final ValueNotifier<bool> _isLoadingPage = ValueNotifier(false);
 
 
-  final Map<int, List<HomeworkItem>> homeworkByStatus = {
+  static final Map<int, List<HomeworkItem>> _homeworkByStatus = {
     0: [],
     1: [],
     2: [],
@@ -51,7 +51,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     2: 1,
     3: 1,
   };
-  final ValueNotifier<Map<int, int>> _homeworkCounts = ValueNotifier({});
+  static final ValueNotifier<Map<int, int>> _homeworkCounts = ValueNotifier({});
   final Map<int, bool> _collapsed = {
     0: true,
     1: true,
@@ -66,13 +66,13 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     _isLoading.dispose();
     _typeSpace.dispose();
     _isLoadingPage.dispose();
-    _homeworkCounts.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    _homeworkByStatus;
     _loadAll();
   }
 
@@ -95,8 +95,8 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       if (response.statusCode == 200) {
         pageByStatus[status] = pageByStatus[status] !+ 1;
         final data = jsonDecode(response.body);
-        homeworkByStatus[status] = data.map<HomeworkItem>((el) => HomeworkItem.fromJson(el)).toList();
-        setState(() => homeworkByStatus);
+        _homeworkByStatus[status] = data.map<HomeworkItem>((el) => HomeworkItem.fromJson(el)).toList();
+        setState(() => _homeworkByStatus);
       }
     }
   }
@@ -111,8 +111,8 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     if (response.statusCode == 200) {
       pageByStatus[status] = pageByStatus[status] !+ 1;
       final data = jsonDecode(response.body);
-      homeworkByStatus[status]?.addAll(data.map<HomeworkItem>((el) => HomeworkItem.fromJson(el)).toList());
-      setState(() => homeworkByStatus);
+      _homeworkByStatus[status]?.addAll(data.map<HomeworkItem>((el) => HomeworkItem.fromJson(el)).toList());
+      setState(() => _homeworkByStatus);
     }
   }
 
@@ -155,7 +155,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     return ValueListenableBuilder(
       valueListenable: _homeworkCounts,
       builder: (_, homeworkCountsValue, _) {
-        final count = homeworkCountsValue[status] ?? homeworkByStatus[status]!.length;
+        final count = homeworkCountsValue[status] ?? _homeworkByStatus[status]!.length;
         return GestureDetector(
           onTap: () => setState(() => _collapsed[status] = !isCollapsed),
           child: Container(
@@ -210,7 +210,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   }
 
   Widget _buildSection(int status) {
-    final list = homeworkByStatus[status] ?? [];
+    final list = _homeworkByStatus[status] ?? [];
     if (list.isEmpty) return const SizedBox();
     final isCollapsed = _collapsed[status] ?? true;
 
@@ -265,7 +265,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   Widget _buildTabBody() {
     final statuses = [3, 2, 1, 0];
 
-    final hasAny = statuses.any((s) => homeworkByStatus[s]!.isNotEmpty);
+    final hasAny = statuses.any((s) => _homeworkByStatus[s]!.isNotEmpty);
     if (!hasAny) {
       return Center(
         child: Column(
@@ -309,7 +309,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                 ),
           
                 Skeletonizer(
-                  enabled: isLoadingValue,
+                  enabled: (isLoadingValue && _homeworkCounts.value.isEmpty),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -407,7 +407,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                 SizedBox(height: 20),
             
                 Skeletonizer(
-                  enabled: isLoadingValue,
+                  enabled: (isLoadingValue && _homeworkCounts.value.isEmpty),
                   child: _buildTabBody()
                 ),
               ],
