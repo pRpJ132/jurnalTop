@@ -47,6 +47,8 @@ class ApiClient {
       logger.i('HTTP $method -> $uri \nBody: ${body ?? {}}');
     }
 
+    const Duration durationTimeOut = Duration(seconds: 12);
+
     late http.Response response;
 
     try {
@@ -54,35 +56,35 @@ class ApiClient {
         case 'GET':
           response = await _client
               .get(uri.replace(queryParameters: queryPar), headers: _headers(token))
-              .timeout(const Duration(seconds: 5));
+              .timeout(durationTimeOut);
           break;
 
         case 'POST':
           response = await _client
               .post(uri.replace(queryParameters: queryPar),
                   headers: _headers(token), body: body)
-              .timeout(const Duration(seconds: 5));
+              .timeout(durationTimeOut);
           break;
 
         case 'PUT':
           response = await _client
               .put(uri.replace(queryParameters: queryPar),
                   headers: _headers(token), body: body)
-              .timeout(const Duration(seconds: 5));
+              .timeout(durationTimeOut);
           break;
 
         case 'PATCH':
           response = await _client
               .patch(uri.replace(queryParameters: queryPar),
                   headers: _headers(token), body: body)
-              .timeout(const Duration(seconds: 5));
+              .timeout(durationTimeOut);
           break;
 
         case 'DELETE':
           response = await _client
               .delete(uri.replace(queryParameters: queryPar),
                   headers: _headers(token), body: body)
-              .timeout(const Duration(seconds: 5));
+              .timeout(durationTimeOut);
           break;
 
         default:

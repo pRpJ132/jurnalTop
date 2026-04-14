@@ -13,7 +13,7 @@ Future<void> showNewsDialog(
   late BuildContext dialogContext;
   showDialog(
     context: context,
-    barrierDismissible: false,
+    barrierDismissible: true,
     builder: (ctx) {
       dialogContext = ctx;
       return const Center(
@@ -40,9 +40,8 @@ Future<void> showNewsDialog(
     Navigator.pop(dialogContext);
 
     showDialog(
-      context: context,
+      context: dialogContext,
       builder: (ctx) {
-        dialogContext = ctx;
         return Dialog(
           backgroundColor: Colors.white,
           child: Padding(
