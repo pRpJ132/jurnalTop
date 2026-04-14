@@ -14,7 +14,7 @@ class PersonalAccountScreen extends StatefulWidget {
 }
 
 class _PersonalAccountScreenState extends State<PersonalAccountScreen> {
-  final ValueNotifier<PersonalAccount?> _profile = ValueNotifier(null);
+  static final ValueNotifier<PersonalAccount?> _profile = ValueNotifier(null);
   final ValueNotifier<bool> _isLoading = ValueNotifier(false);
 
   @override
@@ -26,7 +26,6 @@ class _PersonalAccountScreenState extends State<PersonalAccountScreen> {
   @override
   void dispose() {
     _isLoading.dispose();
-    _profile.dispose();
     super.dispose();
   }
 
@@ -59,7 +58,7 @@ class _PersonalAccountScreenState extends State<PersonalAccountScreen> {
             ValueListenableBuilder<bool>(
               valueListenable: _isLoading,
               builder: (context, isLoading, _) {
-                if (isLoading) {
+                if (isLoading && _profile.value == null) {
                   final newProfile = PersonalAccount(
                     fulName: '-----------',
                     dateBirth: "2009-07-05",
@@ -74,11 +73,11 @@ class _PersonalAccountScreenState extends State<PersonalAccountScreen> {
                     ]
                   );
                   return Skeletonizer(
-                    enabled: isLoading,
+                    enabled: true,
                     child: _buildProfileCard(context, newProfile)
                   );
                 }
-                
+
                 return ValueListenableBuilder<PersonalAccount?>(
                   valueListenable: _profile,
                   builder: (context, profile, _) {

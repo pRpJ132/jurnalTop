@@ -18,9 +18,9 @@ class MarketScreen extends StatefulWidget {
 }
 
 class _MarketScreenState extends State<MarketScreen> {
-  int topcoins = 0;
-  int topgems = 0;
-  final ValueNotifier<List<ProductStore>> _productStore = ValueNotifier([]);
+  static int topcoins = 0;
+  static int topgems = 0;
+  static final ValueNotifier<List<ProductStore>> _productStore = ValueNotifier([]);
   final ValueNotifier<bool> _isLoading = ValueNotifier(false);
   final dbCartProduct = CartProductDatabase();
   String selectedValuePopMenu = "shop";
@@ -59,7 +59,6 @@ class _MarketScreenState extends State<MarketScreen> {
   @override
   void dispose() {
     _isLoading.dispose();
-    _productStore.dispose();
     super.dispose();
   }
 
@@ -111,7 +110,7 @@ class _MarketScreenState extends State<MarketScreen> {
                 child: ValueListenableBuilder(
                   valueListenable: _isLoading,
                   builder: (_, isLoadingValue, _) {
-                    if(isLoadingValue) {
+                    if(isLoadingValue && _productStore.value.isEmpty) {
                       final newProductStore = ValueNotifier(List.generate(
                         10,
                         (int index) => ProductStore(
@@ -127,7 +126,7 @@ class _MarketScreenState extends State<MarketScreen> {
                         ) 
                       ));
                       return Skeletonizer(
-                        enabled: isLoadingValue,
+                        enabled: true,
                         child: Column(
                           crossAxisAlignment: .end,
                           children: [
