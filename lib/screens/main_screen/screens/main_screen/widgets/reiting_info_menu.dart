@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:my_app/network/api_client.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class ReitingInfoMenu extends StatefulWidget {
   const ReitingInfoMenu({super.key});
@@ -12,8 +13,9 @@ class ReitingInfoMenu extends StatefulWidget {
 }
 
 class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
-  final positionGroup = ValueNotifier<int>(0);
-  final positionStream = ValueNotifier<int>(0);
+  final _positionGroup = ValueNotifier<int>(0);
+  final _positionStream = ValueNotifier<int>(0);
+  final _isLoading = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -23,8 +25,9 @@ class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
 
   @override
   void dispose() {
-    positionGroup.dispose();
-    positionStream.dispose();
+    _positionGroup.dispose();
+    _positionStream.dispose();
+    _isLoading.dispose();
     super.dispose();
   }
 
@@ -37,40 +40,48 @@ class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Рейтинг", 
-              style: TextStyle(
-                fontSize: 27,
+        child: ValueListenableBuilder(
+          valueListenable: _isLoading,
+          builder: (_, isLoadingValue, _) {
+            return Skeletonizer(
+              enabled: isLoadingValue,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Рейтинг", 
+                    style: TextStyle(
+                      fontSize: 27,
+                    ),
+                  ),
+                  Divider(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: ValueListenableBuilder<int>(
+                          valueListenable: _positionGroup,
+                          builder: (_, value, _) => Text(
+                            "$value место в группе", 
+                            style: TextStyle(fontSize: MediaQuery.of(context).size.width > 600 ? 24 : 20)
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        child: ValueListenableBuilder<int>(
+                          valueListenable: _positionStream,
+                          builder: (_, value, _) => Text(
+                            "$value место в потоке", 
+                            style: TextStyle(fontSize: MediaQuery.of(context).size.width > 600 ? 24 : 20)
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-            Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: ValueListenableBuilder<int>(
-                    valueListenable: positionGroup,
-                    builder: (_, value, _) => Text(
-                      "$value место в группе", 
-                      style: TextStyle(fontSize: MediaQuery.of(context).size.width > 600 ? 24 : 20)
-                    ),
-                  ),
-                ),
-                Flexible(
-                  child: ValueListenableBuilder<int>(
-                    valueListenable: positionStream,
-                    builder: (_, value, _) => Text(
-                      "$value место в потоке", 
-                      style: TextStyle(fontSize: MediaQuery.of(context).size.width > 600 ? 24 : 20)
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+            );
+          }
         ),
       ),
     );
@@ -80,13 +91,13 @@ class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
     final response = await ApiClient.get("dashboard/progress/leader-group-points");
     if (response.statusCode == 200) {
       final data = await jsonDecode(response.body);
-      positionGroup.value = data["studentPosition"].toInt();
+      _positionGroup.value = data["studentPosition"].toInt();
     }
 
     final response2 = await ApiClient.get("dashboard/progress/leader-stream-points");
     if (response2.statusCode == 200) {
       final data = await jsonDecode(response2.body);
-      positionStream.value = data["studentPosition"].toInt();
+      _positionStream.value = data["studentPosition"].toInt();
     }
   }
 }

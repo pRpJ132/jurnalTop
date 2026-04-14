@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/models/personal_account.dart';
 import 'package:my_app/network/api_client.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class PersonalAccountScreen extends StatefulWidget {
   const PersonalAccountScreen({super.key});
@@ -59,8 +60,25 @@ class _PersonalAccountScreenState extends State<PersonalAccountScreen> {
               valueListenable: _isLoading,
               builder: (context, isLoading, _) {
                 if (isLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  final newProfile = PersonalAccount(
+                    fulName: '-----------',
+                    dateBirth: "2009-07-05",
+                    address: '-----------------------',
+                    study: '---------------',
+                    email: '---------------------',
+                    fillPercentage: 85,
+                    phones: [
+                      Phone(
+                        phoneNumber: '---------------'
+                      )
+                    ]
+                  );
+                  return Skeletonizer(
+                    enabled: isLoading,
+                    child: _buildProfileCard(context, newProfile)
+                  );
                 }
+                
                 return ValueListenableBuilder<PersonalAccount?>(
                   valueListenable: _profile,
                   builder: (context, profile, _) {

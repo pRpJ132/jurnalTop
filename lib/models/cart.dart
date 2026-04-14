@@ -5,7 +5,7 @@ import 'package:my_app/services/logger.dart';
 
 class Cart extends ChangeNotifier {
   List<ProductStore> productStore = [];
-  bool isLoad = true;
+  bool isLoad = false;
 
   Cart() {
     loadProducts();
@@ -13,13 +13,13 @@ class Cart extends ChangeNotifier {
 
   Future<void> loadProducts() async {
     try {
-      isLoad = false;
+      isLoad = true;
       productStore = await CartProductDatabase().getProductsStore();
       notifyListeners();
     } catch (e) {
       logger.e('Load products error: $e');
     } finally {
-      isLoad = true;
+      isLoad = false;
     }
   }
 

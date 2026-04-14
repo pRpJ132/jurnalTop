@@ -21,7 +21,6 @@ class Mainscreens extends StatefulWidget {
 }
 
 class _MainscreensState extends State<Mainscreens> {
-  String nameFull = "";
   String groupName = "";
   int topcoins = 0;
   int topgems = 0;
@@ -46,12 +45,10 @@ class _MainscreensState extends State<Mainscreens> {
   ];
 
   Future<void> initUserData() async {
-    final name = await UserStorage.getFullName() ?? "Tamik";
     final group = await UserStorage.getGroupName() ?? "Unknown";
     final coins = await UserStorage.getTopCoins() ?? 0;
     final gems = await UserStorage.getTopGems() ?? 0;
     setState(() {
-      nameFull = name;
       groupName = group;
       topcoins = coins;
       topgems = gems;
@@ -106,25 +103,11 @@ class _MainscreensState extends State<Mainscreens> {
             FutureBuilder<String?>(
               future: UserStorage.getPhotoUrl(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return ClipOval(
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      color: const Color.fromARGB(255, 220, 219, 219),
-                      child: const Icon(Icons.person)
-                    ),
-                  );
-                }
-
                 return ClipOval(
                   child: SizedBox(
                     width: 40,
                     height: 40,
-                    child: Image.network(
+                    child: !snapshot.hasData ? CircularProgressIndicator() : Image.network(
                       snapshot.data!,
                       fit: BoxFit.cover,
                     ),

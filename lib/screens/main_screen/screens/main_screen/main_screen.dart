@@ -5,6 +5,7 @@ import 'package:my_app/screens/main_screen/screens/main_screen/widgets/homework_
 import 'package:my_app/screens/main_screen/screens/main_screen/widgets/leaderboard.dart';
 import 'package:my_app/screens/main_screen/screens/main_screen/widgets/reiting_info_menu.dart';
 import 'package:my_app/services/user_storage.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});

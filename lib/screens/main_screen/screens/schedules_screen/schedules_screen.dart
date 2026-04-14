@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/network/api_client.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class SchedulesScreen extends StatefulWidget {
   const SchedulesScreen({super.key});
@@ -11,10 +12,12 @@ class SchedulesScreen extends StatefulWidget {
 }
 
 class _SchedulesScreenState extends State<SchedulesScreen> {
-  DateTime currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
+  DateTime _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
 
-  final schedules = ValueNotifier<List<dynamic>>([]);
+  final _schedules = ValueNotifier<List<dynamic>>([]);
   final Map<String, List<dynamic>> _cache = {};
+
+  final _isLoading = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -24,37 +27,44 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
 
   @override
   void dispose() {
-    schedules.dispose();
+    _schedules.dispose();
+    _isLoading.dispose();
     super.dispose();
   }
 
   Future<void> _loadSchedules() async {
-    final dateFilter = DateFormat('yyyy-MM-dd').format(currentMonth);
+    try {
+      _isLoading.value = true;
+      final dateFilter = DateFormat('yyyy-MM-dd').format(_currentMonth);
 
-    final cacheKey = DateFormat('yyyy-MM').format(currentMonth);
+      final cacheKey = DateFormat('yyyy-MM').format(_currentMonth);
 
-    if (_cache.containsKey(cacheKey)) {
-      schedules.value = _cache[cacheKey]!;
-    }
+      if (_cache.containsKey(cacheKey)) {
+        _schedules.value = _cache[cacheKey]!;
+        return;
+      }
 
-    final response = await ApiClient.get(
-      "schedule/operations/get-month?date_filter=$dateFilter",
-    );
+      final response = await ApiClient.get(
+        "schedule/operations/get-month?date_filter=$dateFilter",
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
 
-      _cache[cacheKey] = data;
+        _cache[cacheKey] = data;
 
-      schedules.value = data;
+        _schedules.value = data;
+      }
+    } finally {
+      _isLoading.value = false;
     }
   }
 
   void _prevMonth() {
     setState(() {
-      currentMonth = DateTime(
-        currentMonth.year,
-        currentMonth.month - 1,
+      _currentMonth = DateTime(
+        _currentMonth.year,
+        _currentMonth.month - 1,
       );
     });
     _loadSchedules();
@@ -62,9 +72,9 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
 
   void _nextMonth() {
     setState(() {
-      currentMonth = DateTime(
-        currentMonth.year,
-        currentMonth.month + 1,
+      _currentMonth = DateTime(
+        _currentMonth.year,
+        _currentMonth.month + 1,
       );
     });
     _loadSchedules();
@@ -72,10 +82,10 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
 
   List<DateTime?> _generateDays() {
     final firstDayOfMonth =
-        DateTime(currentMonth.year, currentMonth.month, 1);
+        DateTime(_currentMonth.year, _currentMonth.month, 1);
 
     final lastDayOfMonth =
-        DateTime(currentMonth.year, currentMonth.month + 1, 0);
+        DateTime(_currentMonth.year, _currentMonth.month + 1, 0);
 
     int startOffset = firstDayOfMonth.weekday - 1;
 
@@ -87,8 +97,8 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
 
     for (int i = 0; i < lastDayOfMonth.day; i++) {
       days.add(DateTime(
-        currentMonth.year,
-        currentMonth.month,
+        _currentMonth.year,
+        _currentMonth.month,
         i + 1,
       ));
     }
@@ -102,7 +112,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
     }
     final dateStr = DateFormat('yyyy-MM-dd').format(day);
 
-    return schedules.value.any((e) => e['date'] == dateStr);
+    return _schedules.value.any((e) => e['date'] == dateStr);
   }
 
   @override
@@ -136,7 +146,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
                   ),
                 ),
                 Text(
-                  DateFormat('MMMM yyyy', 'ru').format(currentMonth),
+                  DateFormat('MMMM yyyy', 'ru').format(_currentMonth),
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width < 600 ? 20 : 25,
                     fontWeight: FontWeight.w600,
@@ -173,47 +183,55 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
               ],
             ),
               
-            ValueListenableBuilder<List<dynamic>>(
-              valueListenable: schedules,
-              builder: (_, value, _) => GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: days.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 7,
-                  childAspectRatio: 1,
-                ),
-                itemBuilder: (context, index) {
-                  final day = days[index];
-                  final hasLesson = _hasLesson(day);
-              
-                  return GestureDetector(
-                    onTap: () => _showDayDialog(day),
-                    child: Container(
-                      margin: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: hasLesson == null ? Colors.transparent : hasLesson
-                            ? const Color(0xFF188194)
-                            : const Color(0xFF9ac9c0),
-                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width < 600 ? 6 : 12),
-                        border: Border.all(
-                          color: hasLesson == null ? const Color.fromARGB(159, 154, 201, 192) : Colors.transparent
-                        )
+            ValueListenableBuilder(
+              valueListenable: _isLoading,
+              builder: (_, isLoadingValue, _) {
+                return Skeletonizer(
+                  enabled: isLoadingValue,
+                  child: ValueListenableBuilder<List<dynamic>>(
+                    valueListenable: _schedules,
+                    builder: (_, value, _) => GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: days.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 7,
+                        childAspectRatio: 1,
                       ),
-                      child: Center(
-                        child: Text(
-                          "${day?.day ?? " "}",
-                          style: TextStyle(
-                            color: (hasLesson != null && hasLesson) ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.w500,
-                            fontSize: MediaQuery.of(context).size.width < 600 ? 14 : 22,
+                      itemBuilder: (context, index) {
+                        final day = days[index];
+                        final hasLesson = _hasLesson(day);
+                    
+                        return GestureDetector(
+                          onTap: () => _showDayDialog(day),
+                          child: Container(
+                            margin: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: hasLesson == null ? Colors.transparent : hasLesson
+                                  ? const Color(0xFF188194)
+                                  : const Color(0xFF9ac9c0),
+                              borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width < 600 ? 6 : 12),
+                              border: Border.all(
+                                color: hasLesson == null ? const Color.fromARGB(159, 154, 201, 192) : Colors.transparent
+                              )
+                            ),
+                            child: Center(
+                              child: Text(
+                                "${day?.day ?? " "}",
+                                style: TextStyle(
+                                  color: (hasLesson != null && hasLesson) ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: MediaQuery.of(context).size.width < 600 ? 14 : 22,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              )
+                        );
+                      },
+                    )
+                  ),
+                );
+              }
             ),
           ],
         ),
@@ -227,7 +245,7 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
     }
     final dateStr = DateFormat('yyyy-MM-dd').format(day);
 
-    final dayLessons = schedules.value.where((e) => e['date'] == dateStr).toList();
+    final dayLessons = _schedules.value.where((e) => e['date'] == dateStr).toList();
 
     showDialog(
       context: context,

@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/models/student_visits.dart';
 import 'package:my_app/network/api_client.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class AssessmentsScreen extends StatefulWidget {
   const AssessmentsScreen({super.key});
@@ -19,35 +21,34 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAll();
+    _loadAssessments();
   }
 
-   @override
-    void dispose() {
-      super.dispose();
-      _isLoading.dispose();
-      _assessments.dispose();
-    }
-
-  void _loadAll() async {
-    _isLoading.value = true;
-    await _loadAssessments();
-    _isLoading.value = false;
+  @override
+  void dispose() {
+    super.dispose();
+    _isLoading.dispose();
+    _assessments.dispose();
   }
 
   Future<void> _loadAssessments() async {
-    final response = await ApiClient.get(
-      "progress/operations/student-visits"
-    );
+    try {
+      _isLoading.value = true;
+      final response = await ApiClient.get(
+        "progress/operations/student-visits"
+      );
 
-    if(response.statusCode == 200) {
-      final body = jsonDecode(response.body);
-      _assessments.value = body.map<StudentVisits>((el) => StudentVisits.fromJson(el)).toList();
+      if(response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        _assessments.value = body.map<StudentVisits>((el) => StudentVisits.fromJson(el)).toList();
+      }
+    } finally {
+      _isLoading.value = false;
     }
   }
 
-  Color _statusWasColorContainer(StudentVisits assessments) {
-    switch (assessments.statusWas) {
+  Color _statusWasColorContainer(StudentVisits? assessments) {
+    switch (assessments?.statusWas) {
       case 0:
         return const Color.fromARGB(142, 255, 17, 0);
       case 2:
@@ -66,8 +67,8 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
     return const Color.fromARGB(255, 80, 80, 80);
   }
 
-  Color _statusWasColorText(StudentVisits assessments) {
-    switch (assessments.statusWas) {
+  Color _statusWasColorText(StudentVisits? assessments) {
+    switch (assessments?.statusWas) {
       case 0:
         return Colors.black;
       case 2:
@@ -117,28 +118,101 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _isLoading,
-      builder: (_, isLoadingValue, _) {
-        if (isLoadingValue) {
-          return Center(child: CircularProgressIndicator());
-        }
-        return SingleChildScrollView(
-          child: Container(
-            color: Colors.transparent,
-            child: Column(
-              crossAxisAlignment: .start,
-              mainAxisSize: .min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 9.0, top: 14),
-                  child: Text(
-                    "Оценки".toUpperCase(),
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-                ),
-                Flexible(
-                  child: ValueListenableBuilder(
+    return SingleChildScrollView(
+      child: Container(
+        color: Colors.transparent,
+        child: Column(
+          crossAxisAlignment: .start,
+          mainAxisSize: .min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 9.0, top: 14),
+              child: Text(
+                "Оценки".toUpperCase(),
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+            ),
+            Flexible(
+              child: ValueListenableBuilder(
+                valueListenable: _isLoading,
+                builder: (_, isLoadingValue, _) {
+                  if (isLoadingValue) {
+                    return Skeletonizer(
+                      enabled: isLoadingValue, 
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(8),
+                        itemCount: 67,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: MediaQuery.of(context).size.width < 600 
+                            ? MediaQuery.of(context).size.width < 400 
+                              ? 4 : 5 
+                                : 10,
+                          crossAxisSpacing: 6,
+                          mainAxisSpacing: 6,
+                          childAspectRatio: 1,
+                        ),
+                        itemBuilder: (_, _) => Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: _statusWasColorContainer(null),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
+                                children: [
+                                  Text(
+                                    DateFormat('dd.MM.yyyy').format(DateTime.now()),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: _statusWasColorText(null),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "657",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: _statusWasColorText(null),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              
+                              Flexible(
+                                child: Wrap(
+                                  spacing: 4,
+                                  runSpacing: 4,
+                                  alignment: WrapAlignment.center,
+                                  children: [
+                                    if(Random().nextInt(5) + 1 > 3)
+                                      _markCircle(_nameWorkColor("controlWorkMark"), Random().nextInt(5) + 1),
+                                    if(Random().nextInt(5) + 1 > 3)
+                                      _markCircle(_nameWorkColor("homeWorkMark"), Random().nextInt(5) + 1),
+                                    if(Random().nextInt(5) + 1 > 3)
+                                      _markCircle(_nameWorkColor("labWorkMark"), Random().nextInt(5) + 1),
+                                    if(Random().nextInt(5) + 1 > 3)
+                                      _markCircle(_nameWorkColor("classWorkMark"), Random().nextInt(5) + 1),
+                                    if(Random().nextInt(5) + 1 > 3)
+                                      _markCircle(_nameWorkColor("practicalWorkMark"), Random().nextInt(5) + 1),
+                                    if(Random().nextInt(5) + 1 > 3)
+                                      _markCircle(_nameWorkColor("finalWorkMark"), Random().nextInt(5) + 1),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ),
+                    );
+                  }
+
+                  return ValueListenableBuilder(
                     valueListenable: _assessments,
                     builder: (_, assessmentsValue, _) {
                       return GridView.builder(
@@ -219,13 +293,13 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
                         },
                       );
                     },
-                  ),
-                ),
-              ],
+                  );
+                }
+              ),
             ),
-          ),
-        );
-      }
+          ],
+        ),
+      ),
     );
   }
 

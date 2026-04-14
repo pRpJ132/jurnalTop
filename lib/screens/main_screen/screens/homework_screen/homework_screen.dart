@@ -8,6 +8,7 @@ import 'package:my_app/screens/main_screen/screens/homework_screen/service/get_s
 import 'package:my_app/screens/main_screen/screens/homework_screen/service/get_status_text.dart';
 import 'package:my_app/screens/main_screen/screens/homework_screen/widgets/build_homework_item.dart';
 import 'package:my_app/services/user_storage.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomeworkScreen extends StatefulWidget {
   const HomeworkScreen({super.key});
@@ -293,10 +294,6 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       body: ValueListenableBuilder(
         valueListenable: _isLoading,
         builder: (_, isLoadingValue, _) {
-          if (isLoadingValue == true) {
-            return Center(child: CircularProgressIndicator());
-          }
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -311,102 +308,108 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                   ),
                 ),
           
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ValueListenableBuilder(
-                      valueListenable: nameSpaces,
-                      builder: (_, nameSpacesVal, _) => ValueListenableBuilder(
-                        valueListenable: selectedItem,
-                        builder: (_, selectedItemValue, _) {
-                          return PopupMenuButton<int>(
-                            popUpAnimationStyle: AnimationStyle(
-                              duration: Duration(milliseconds: 350),
-                              curve: Curves.easeOut,
-                              reverseCurve: Curves.easeIn,
-                              reverseDuration: Duration(milliseconds: 100)
-                            ),
-                            initialValue: selectedItemValue.specId,
-                            onSelected: (int specId) {
-                              selectedItem.value = nameSpacesVal.firstWhere((el) => el.specId == specId);
-                              pageByStatus = {
-                                0: 1,
-                                1: 1,
-                                2: 1,
-                                3: 1,
-                              };
-                              _loadAll();
-                            },
-                            constraints: BoxConstraints(
-                              maxHeight: 450,
-                              maxWidth: 250
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            color: Colors.white,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                Skeletonizer(
+                  enabled: isLoadingValue,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ValueListenableBuilder(
+                        valueListenable: nameSpaces,
+                        builder: (_, nameSpacesVal, _) => ValueListenableBuilder(
+                          valueListenable: selectedItem,
+                          builder: (_, selectedItemValue, _) {
+                            return PopupMenuButton<int>(
+                              popUpAnimationStyle: AnimationStyle(
+                                duration: Duration(milliseconds: 350),
+                                curve: Curves.easeOut,
+                                reverseCurve: Curves.easeIn,
+                                reverseDuration: Duration(milliseconds: 100)
+                              ),
+                              initialValue: selectedItemValue.specId,
+                              onSelected: (int specId) {
+                                selectedItem.value = nameSpacesVal.firstWhere((el) => el.specId == specId);
+                                pageByStatus = {
+                                  0: 1,
+                                  1: 1,
+                                  2: 1,
+                                  3: 1,
+                                };
+                                _loadAll();
+                              },
                               constraints: BoxConstraints(
-                                maxWidth: 200.0,
+                                maxHeight: 450,
+                                maxWidth: 250
                               ),
-                              decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 255, 255, 255),
-                                borderRadius: BorderRadius.circular(16)
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
+                              color: Colors.white,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                                constraints: BoxConstraints(
+                                  maxWidth: 200.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(255, 255, 255, 255),
+                                  borderRadius: BorderRadius.circular(16)
+                                ),
+                                child: Text(
+                                  selectedItemValue.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              itemBuilder: (BuildContext context) {
+                                return nameSpacesVal.map((el) {
+                                  return PopupMenuItem<int>(
+                                    value: el.specId,
+                                    child: Text(el.name),
+                                  );
+                                }).toList();
+                              },
+                            );
+                          }
+                        ),
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: _typeSpace,
+                        builder: (_, typeSpaceValue, _) {
+                          return Flexible(
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                overlayColor: Colors.white
+                              ),
+                              onPressed: ()  {
+                                _typeSpace.value == 0 ? _typeSpace.value = 1 : _typeSpace.value = 0;
+                                pageByStatus = {
+                                  0: 1,
+                                  1: 1,
+                                  2: 1,
+                                  3: 1,
+                                };
+                                _loadAll();
+                              }, 
                               child: Text(
-                                selectedItemValue.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                                typeSpaceValue == 0 ? "Лабораторные работы" : "Домашние задания",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 13,
+                                ),
+                              )
                             ),
-                            itemBuilder: (BuildContext context) {
-                              return nameSpacesVal.map((el) {
-                                return PopupMenuItem<int>(
-                                  value: el.specId,
-                                  child: Text(el.name),
-                                );
-                              }).toList();
-                            },
                           );
                         }
                       ),
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: _typeSpace,
-                      builder: (_, typeSpaceValue, _) {
-                        return Flexible(
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                              overlayColor: Colors.white
-                            ),
-                            onPressed: ()  {
-                              _typeSpace.value == 0 ? _typeSpace.value = 1 : _typeSpace.value = 0;
-                              pageByStatus = {
-                                0: 1,
-                                1: 1,
-                                2: 1,
-                                3: 1,
-                              };
-                              _loadAll();
-                            }, 
-                            child: Text(
-                              typeSpaceValue == 0 ? "Лабораторные работы" : "Домашние задания",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 13,
-                              ),
-                            )
-                          ),
-                        );
-                      }
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
           
                 SizedBox(height: 20),
             
-                _buildTabBody(),
+                Skeletonizer(
+                  enabled: isLoadingValue,
+                  child: _buildTabBody()
+                ),
               ],
             ),
           );

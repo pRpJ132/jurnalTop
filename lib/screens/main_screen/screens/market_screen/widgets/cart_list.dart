@@ -11,7 +11,7 @@ Widget buildCartList(
   return Expanded(
     child: Consumer<Cart>(
       builder: (_, cartValue, _) {
-        if (!cartValue.isLoad) {
+        if (cartValue.isLoad) {
           return Center(
             child: CircularProgressIndicator(),
           );

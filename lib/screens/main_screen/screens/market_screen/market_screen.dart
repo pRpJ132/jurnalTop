@@ -8,6 +8,7 @@ import 'package:my_app/screens/main_screen/screens/market_screen/widgets/my_purc
 import 'package:my_app/screens/main_screen/screens/market_screen/widgets/products_list.dart';
 import 'package:my_app/services/db/cart_product_db.dart';
 import 'package:my_app/services/user_storage.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class MarketScreen extends StatefulWidget {
   const MarketScreen({super.key});
@@ -66,54 +67,107 @@ class _MarketScreenState extends State<MarketScreen> {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return ValueListenableBuilder(
-      valueListenable: _isLoading,
-      builder: (_, isLoadingValue, _) {
-        if (isLoadingValue) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Text(
+                "Магазин".toUpperCase(),
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+    
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 15,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(
-                    "Магазин".toUpperCase(),
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-        
-                    Row(
-                      spacing: 15,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        if (!isMobile) ...[
-                          _headerButton("Магазин"),
-                          _headerButton("Корзина"),
-                          _headerButton("Мои покупки"),
-                        ],
-                        balanceItem(topcoins.toString(), "assets/top-coin.png"),
-                        balanceItem(topgems.toString(), "assets/top-gem.png"),
-                      ],
-                    ),
+                    if (!isMobile) ...[
+                      _headerButton("Магазин", "shop"),
+                      _headerButton("Корзина", "cart"),
+                      _headerButton("Мои покупки", "orders"),
+                    ],
+                    if (isMobile) ...[
+                      balanceItem(topcoins.toString(), "assets/top-coin.png"),
+                      balanceItem(topgems.toString(), "assets/top-gem.png"),
+                    ]
                   ],
                 ),
-        
-                const SizedBox(height: 20),
-        
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
+              ],
+            ),
+    
+            const SizedBox(height: 20),
+    
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ValueListenableBuilder(
+                  valueListenable: _isLoading,
+                  builder: (_, isLoadingValue, _) {
+                    if(isLoadingValue) {
+                      final newProductStore = ValueNotifier(List.generate(
+                        10,
+                        (int index) => ProductStore(
+                          id: index, 
+                          description: '----------', 
+                          vendorCode: '----------', 
+                          status: 0, 
+                          dynamicPriceStatus: 0, 
+                          title: '-----------------', 
+                          quantity: 10, 
+                          fileName: '', 
+                          url: ''
+                        ) 
+                      ));
+                      return Skeletonizer(
+                        enabled: isLoadingValue,
+                        child: Column(
+                          crossAxisAlignment: .end,
+                          children: [
+                            if (isMobile)
+                            PopupMenuButton<String>(
+                              initialValue: selectedValuePopMenu,
+                              onSelected: (value) => setState(() => selectedValuePopMenu = value),
+                              icon: const Icon(Icons.menu),
+                              color: Colors.white,
+                              elevation: 8,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: "shop",
+                                  child: Text("Магазин"),
+                                ),
+                                const PopupMenuItem(
+                                  value: "cart",
+                                  child: Text("Корзина"),
+                                ),
+                                const PopupMenuItem(
+                                  value: "orders",
+                                  child: Text("Мои покупки"),
+                                ),
+                              ],
+                            ),
+
+                            if (selectedValuePopMenu == "shop")
+                              buildProductList(newProductStore)
+                            else if (selectedValuePopMenu == "cart")
+                              buildCartList(newProductStore.value)
+                            else
+                              buildMyPurchases()
+                          ],
+                        ),
+                      );
+                    }
+                    return Column(
                       crossAxisAlignment: .end,
                       children: [
                         if (isMobile)
@@ -148,24 +202,24 @@ class _MarketScreenState extends State<MarketScreen> {
                         else
                           buildMyPurchases()
                       ],
-                    ),
-                  ),
+                    );
+                  }
                 ),
-              ],
+              ),
             ),
-          ),
-        );
-      }
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _headerButton(String text) {
+  Widget _headerButton(String text, String value) {
     return TextButton(
       style: TextButton.styleFrom(
         elevation: 0,
         overlayColor: Colors.grey,
       ),
-      onPressed: () {},
+      onPressed: () => setState(() => selectedValuePopMenu = value),
       child: Text(
         text,
         style: TextStyle(

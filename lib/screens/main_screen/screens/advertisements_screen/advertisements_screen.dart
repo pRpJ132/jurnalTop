@@ -6,6 +6,7 @@ import 'package:my_app/models/latest_news.dart';
 import 'package:my_app/network/api_client.dart';
 import 'package:my_app/screens/main_screen/screens/advertisements_screen/dialog/show_newsdialog.dart';
 import 'package:my_app/services/logger.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class AdvertisementsScreen extends StatefulWidget {
   const AdvertisementsScreen({super.key});
@@ -50,26 +51,62 @@ class _AdvertisementsScreenState extends State<AdvertisementsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _isLoading,
-      builder: (_, isLoadingValue, _) {
-        if (isLoadingValue) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-        return SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              crossAxisAlignment: .start,
-              children: [
-                Text(
-                  "Объявления".toUpperCase(),
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-                SizedBox(height: 15),
-                ValueListenableBuilder(
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: Column(
+          crossAxisAlignment: .start,
+          children: [
+            Text(
+              "Объявления".toUpperCase(),
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+            SizedBox(height: 15),
+            ValueListenableBuilder(
+              valueListenable: _isLoading,
+              builder: (_, isLoadingValue, _) {
+                if(isLoadingValue) {
+                  return Skeletonizer(
+                    enabled: isLoadingValue,
+                    child: GridView.builder(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: MediaQuery.of(context).size.width < 600 ? 1 : 2,
+                        crossAxisSpacing: 15,
+                        mainAxisSpacing: 15,
+                        childAspectRatio: 2,
+                      ),
+                      itemCount: 10,
+                      itemBuilder: (context, index) => Container(
+                        width: MediaQuery.of(context).size.width < 600 ? double.infinity : 350,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border(
+                            top: BorderSide(color: Color(0xFF188194), width: 5),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('------------------------------'),
+                              Spacer(),
+                              Text(
+                                DateFormat('dd MMMM yyyy', 'ru').format(DateTime.now()),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return ValueListenableBuilder(
                   valueListenable: _latestNews,
                   builder: (_, latestNewsValue, _) {
                     return Center(
@@ -126,12 +163,12 @@ class _AdvertisementsScreenState extends State<AdvertisementsScreen> {
                       ),
                     );
                   }
-                ),
-              ],
+                );
+              }
             ),
-          ),
-        );
-      }
+          ],
+        ),
+      ),
     );
   }
 
