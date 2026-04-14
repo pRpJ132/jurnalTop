@@ -26,18 +26,12 @@ class _AverageProgressValue {
 }
 
 class _AverageProgressState extends State<AverageProgress> {
-  final lisAttendance = ValueNotifier<List<_AverageProgressValue>>([]);
+  static final _lisAttendance = ValueNotifier<List<_AverageProgressValue>>([]);
 
   @override
   void initState() {
     super.initState();
     _loadAttendance();
-  }
-
-  @override
-  void dispose() {
-    lisAttendance.dispose();
-    super.dispose();
   }
 
   @override
@@ -60,7 +54,7 @@ class _AverageProgressState extends State<AverageProgress> {
           ),
           SizedBox(height: 15),
           ValueListenableBuilder<List<_AverageProgressValue>>(
-            valueListenable: lisAttendance,
+            valueListenable: _lisAttendance,
             builder: (_, data, _) {
               return Skeletonizer(
                 enabled: data.isEmpty,
@@ -181,7 +175,7 @@ class _AverageProgressState extends State<AverageProgress> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      lisAttendance.value = (data as List)
+      _lisAttendance.value = (data as List)
           .map<_AverageProgressValue>((el) => _AverageProgressValue(
                 date: DateTime.tryParse(el['date']),
                 hasRasp: el['has_rasp'],

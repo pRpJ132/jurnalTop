@@ -13,8 +13,8 @@ class ReitingInfoMenu extends StatefulWidget {
 }
 
 class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
-  final _positionGroup = ValueNotifier<int>(0);
-  final _positionStream = ValueNotifier<int>(0);
+  static final _positionGroup = ValueNotifier<int>(-1);
+  static final _positionStream = ValueNotifier<int>(-1);
   final _isLoading = ValueNotifier<bool>(false);
 
   @override
@@ -25,8 +25,6 @@ class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
 
   @override
   void dispose() {
-    _positionGroup.dispose();
-    _positionStream.dispose();
     _isLoading.dispose();
     super.dispose();
   }
@@ -44,7 +42,9 @@ class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
           valueListenable: _isLoading,
           builder: (_, isLoadingValue, _) {
             return Skeletonizer(
-              enabled: isLoadingValue,
+              enabled: (isLoadingValue && 
+                (_positionGroup.value == -1 || _positionStream.value == -1)
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -88,16 +88,21 @@ class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
   }
 
   void _loadReitingInfo() async {
-    final response = await ApiClient.get("dashboard/progress/leader-group-points");
-    if (response.statusCode == 200) {
-      final data = await jsonDecode(response.body);
-      _positionGroup.value = data["studentPosition"].toInt();
-    }
+    try {
+      _isLoading.value = true;
+      final response = await ApiClient.get("dashboard/progress/leader-group-points");
+      if (response.statusCode == 200) {
+        final data = await jsonDecode(response.body);
+        _positionGroup.value = data["studentPosition"].toInt();
+      }
 
-    final response2 = await ApiClient.get("dashboard/progress/leader-stream-points");
-    if (response2.statusCode == 200) {
-      final data = await jsonDecode(response2.body);
-      _positionStream.value = data["studentPosition"].toInt();
+      final response2 = await ApiClient.get("dashboard/progress/leader-stream-points");
+      if (response2.statusCode == 200) {
+        final data = await jsonDecode(response2.body);
+        _positionStream.value = data["studentPosition"].toInt();
+      }
+    } finally {
+      _isLoading.value = false;
     }
   }
 }

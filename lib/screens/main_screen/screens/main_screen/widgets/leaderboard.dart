@@ -16,12 +16,12 @@ class Leaderboard extends StatefulWidget {
 class _LeaderboardState extends State<Leaderboard> 
   with SingleTickerProviderStateMixin {
 
-  late TabController _controller;
+  static late TabController _controller;
 
-  final _listGroup = ValueNotifier<List<dynamic>>([]);
-  final _listStream = ValueNotifier<List<dynamic>>([]);
+  static final _listGroup = ValueNotifier<List<dynamic>>([]);
+  static final _listStream = ValueNotifier<List<dynamic>>([]);
   final _isLoading = ValueNotifier<bool>(false);
-  int meUserId = 0;
+  static int meUserId = 0;
 
   @override
   void initState() {
@@ -32,9 +32,6 @@ class _LeaderboardState extends State<Leaderboard>
 
   @override
   void dispose() {
-    _controller.dispose();
-    _listGroup.dispose();
-    _listStream.dispose();
     _isLoading.dispose();
     super.dispose();
   }
@@ -52,7 +49,9 @@ class _LeaderboardState extends State<Leaderboard>
           valueListenable: _isLoading,
           builder: (_, isLoadingValue, _) {
             return Skeletonizer(
-              enabled: isLoadingValue,
+              enabled: (isLoadingValue && 
+                (_listStream.value.isEmpty || _listGroup.value.isEmpty)
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,10 +67,12 @@ class _LeaderboardState extends State<Leaderboard>
                         ),
                       ),
                       TabBar(
+                        dividerColor: const Color.fromARGB(255, 134, 134, 134),
                         controller: _controller,
                         isScrollable: true,
                         tabAlignment: TabAlignment.start,
-                        indicatorColor: Theme.of(context).colorScheme.primary,
+                        labelColor: const Color.fromARGB(255, 0, 0, 0),
+                        indicatorColor: const Color.fromARGB(255, 66, 66, 66),
                         tabs: const [
                           Tab(text: 'Группа'),
                           Tab(text: 'Поток'),

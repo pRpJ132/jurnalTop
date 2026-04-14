@@ -12,11 +12,11 @@ class HomeworkMenu extends StatefulWidget {
 }
 
 class _HomeworkMenuState extends State<HomeworkMenu> {
-  final _homeworkConfirm = ValueNotifier<int>(0);
-  final _homeworkCurrent = ValueNotifier<int>(0);
-  final _homeworkUnderReview = ValueNotifier<int>(0);
-  final _homeworkExpired = ValueNotifier<int>(0);
-  final _homeworkAll = ValueNotifier<int>(0);
+  static final _homeworkConfirm = ValueNotifier<int?>(null);
+  static final _homeworkCurrent = ValueNotifier<int?>(null);
+  static final _homeworkUnderReview = ValueNotifier<int?>(null);
+  static final _homeworkExpired = ValueNotifier<int?>(null);
+  static final _homeworkAll = ValueNotifier<int?>(null);
   final _isLoading = ValueNotifier<bool>(false);
 
   @override
@@ -27,13 +27,19 @@ class _HomeworkMenuState extends State<HomeworkMenu> {
 
   @override
   void dispose() {
-    _homeworkConfirm.dispose();
-    _homeworkCurrent.dispose();
-    _homeworkUnderReview.dispose();
-    _homeworkExpired.dispose();
-    _homeworkAll.dispose();
     _isLoading.dispose();
     super.dispose();
+  }
+
+  bool isValueEmpty() {
+    if (_homeworkConfirm.value == null || 
+      _homeworkCurrent.value == null ||
+      _homeworkUnderReview.value == null ||
+      _homeworkExpired.value == null ||
+      _homeworkAll.value == null ) {
+      return true;
+    }
+    return false;
   }
 
 
@@ -51,7 +57,7 @@ class _HomeworkMenuState extends State<HomeworkMenu> {
           valueListenable: _isLoading,
           builder: (_, isLoadingValue, _) {
             return Skeletonizer(
-              enabled:  isLoadingValue,
+              enabled: (isLoadingValue && isValueEmpty()),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -64,7 +70,7 @@ class _HomeworkMenuState extends State<HomeworkMenu> {
                   ),
                   Divider(),
                   Center(
-                    child: ValueListenableBuilder<int>(
+                    child: ValueListenableBuilder<int?>(
                       valueListenable: _homeworkAll,
                       builder: (_, value, _) => Text(
                         value.toString(),
@@ -93,26 +99,26 @@ class _HomeworkMenuState extends State<HomeworkMenu> {
                           spacing: 20,
                           runSpacing: 18,
                           children: [
-                            ValueListenableBuilder<int>(
+                            ValueListenableBuilder<int?>(
                               valueListenable: _homeworkCurrent,
                               builder: (_, value, _) =>
                                   widgetTextRow(value.toString(), "Текущие", color: Colors.deepPurple),
                             ),
               
-                            ValueListenableBuilder<int>(
+                            ValueListenableBuilder<int?>(
                               valueListenable: _homeworkConfirm,
                               builder: (_, value, _) =>
                                   widgetTextRow(value.toString(), "Проверено", color: Color(0xFF188194)),
                             ),
               
-                            ValueListenableBuilder<int>(
+                            ValueListenableBuilder<int?>(
                               valueListenable: _homeworkUnderReview,
                               builder: (_, value, _) =>
                                   widgetTextRow(value.toString(), "На проверке",
                                       color: Color.fromARGB(255, 237, 216, 27)),
                             ),
               
-                            ValueListenableBuilder<int>(
+                            ValueListenableBuilder<int?>(
                               valueListenable: _homeworkExpired,
                               builder: (_, value, _) =>
                                   widgetTextRow(value.toString(), "Просрочено", color: Colors.red),

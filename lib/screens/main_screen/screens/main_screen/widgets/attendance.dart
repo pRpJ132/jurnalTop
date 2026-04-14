@@ -26,18 +26,12 @@ class _AttendanceValue {
 }
 
 class _AttendanceState extends State<Attendance> {
-  final lisAttendance = ValueNotifier<List<_AttendanceValue>>([]);
+  static final _lisAttendance = ValueNotifier<List<_AttendanceValue>>([]);
 
   @override
   void initState() {
     super.initState();
     _loadAttendance();
-  }
-
-  @override
-  void dispose() {
-    lisAttendance.dispose();
-    super.dispose();
   }
 
   @override
@@ -60,7 +54,7 @@ class _AttendanceState extends State<Attendance> {
           ),
           SizedBox(height: 15),
           ValueListenableBuilder<List<_AttendanceValue>>(
-            valueListenable: lisAttendance,
+            valueListenable: _lisAttendance,
             builder: (_, data, _) {
               return Skeletonizer(
                 enabled: data.isEmpty,
@@ -182,7 +176,7 @@ class _AttendanceState extends State<Attendance> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      lisAttendance.value = (data as List)
+      _lisAttendance.value = (data as List)
           .map<_AttendanceValue>((el) => _AttendanceValue(
                 date: DateTime.tryParse(el['date']),
                 hasRasp: el['has_rasp'],
