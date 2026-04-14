@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CustomDrawer extends StatelessWidget {
-  final ValueNotifier<int> pageIndex;
+  final ValueNotifier<String> pageIndex;
   const CustomDrawer({super.key, required this.pageIndex});
 
   @override
@@ -17,7 +17,7 @@ class CustomDrawer extends StatelessWidget {
             fit: BoxFit.fill,
           ),
         ),
-        child: ValueListenableBuilder<int>(
+        child: ValueListenableBuilder<String>(
           valueListenable: pageIndex,
           builder: (context, currentIndex, _) {
             return ListView(
@@ -36,25 +36,25 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
 
-                drawerItem(CupertinoIcons.chart_bar_circle_fill, 'Главная', 0, currentIndex, context),
-                drawerItem(CupertinoIcons.calendar_circle_fill, 'Расписание', 1, currentIndex, context),
-                drawerItem(CupertinoIcons.book_circle_fill, 'Оценки', 2, currentIndex, context),
-                drawerItem(CupertinoIcons.doc_circle_fill, 'ДЗ', 3, currentIndex, context),
-                drawerItem(CupertinoIcons.bookmark_fill, 'Учебные материалы', 4, currentIndex, context),
-                drawerItem(CupertinoIcons.bell_circle_fill, 'Объявления', 5, currentIndex, context),
-                drawerItem(CupertinoIcons.star_circle_fill, 'Награды', 6, currentIndex, context),
-                drawerItem(CupertinoIcons.pencil_circle_fill, 'Отзывы о студенте', 7, currentIndex, context),
-                drawerItem(CupertinoIcons.person_circle_fill, 'Личный кабинет', 8, currentIndex, context),
-                drawerItem(CupertinoIcons.question_circle_fill, 'F.A.Q.', 9, currentIndex, context),
-                drawerItem(CupertinoIcons.location_circle_fill, 'Контакты', 10, currentIndex, context),
-                drawerItem(CupertinoIcons.chart_bar_circle_fill, 'Обращения', 11, currentIndex, context),
-                drawerItem(CupertinoIcons.exclamationmark_circle_fill, 'Жалобы', 12, currentIndex, context),
+                drawerItem(CupertinoIcons.chart_bar_circle_fill, 'Главная', "main", currentIndex, context),
+                drawerItem(CupertinoIcons.calendar_circle_fill, 'Расписание', "schedule", currentIndex, context),
+                drawerItem(CupertinoIcons.book_circle_fill, 'Оценки', "grades", currentIndex, context),
+                drawerItem(CupertinoIcons.doc_circle_fill, 'ДЗ', "homework", currentIndex, context),
+                drawerItem(CupertinoIcons.bookmark_fill, 'Учебные материалы', "materials", currentIndex, context),
+                drawerItem(CupertinoIcons.bell_circle_fill, 'Объявления', "announcements", currentIndex, context),
+                drawerItem(CupertinoIcons.star_circle_fill, 'Награды', "awards", currentIndex, context),
+                drawerItem(CupertinoIcons.pencil_circle_fill, 'Отзывы о студенте', "feedback", currentIndex, context),
+                drawerItem(CupertinoIcons.person_circle_fill, 'Личный кабинет', "profile", currentIndex, context),
+                drawerItem(CupertinoIcons.question_circle_fill, 'F.A.Q.', "faq", currentIndex, context),
+                drawerItem(CupertinoIcons.location_circle_fill, 'Контакты', "contacts", currentIndex, context),
+                drawerItem(CupertinoIcons.chart_bar_circle_fill, 'Обращения', "requests", currentIndex, context),
+                drawerItem(CupertinoIcons.exclamationmark_circle_fill, 'Жалобы', "complaints", currentIndex, context),
 
                 const SizedBox(height: 20),
 
                 GestureDetector(
                   onTap: () {
-                    pageIndex.value = 13;
+                    pageIndex.value = "market";
                     Navigator.pop(context);
                   },
                   child: Container(
@@ -99,11 +99,11 @@ class CustomDrawer extends StatelessWidget {
   Widget drawerItem(
     IconData icon,
     String text,
-    int index,
-    int currentIndex,
+    String indexPage,
+    String currentIndexPage,
     BuildContext context,
   ) {
-    final bool selected = index == currentIndex;
+    final bool selected = indexPage == currentIndexPage;
 
     return ListTile(
       leading: Icon(
@@ -123,7 +123,7 @@ class CustomDrawer extends StatelessWidget {
         ),
       ),
       onTap: () {
-        pageIndex.value = index;
+        pageIndex.value = indexPage;
         Navigator.pop(context);
       },
       selected: selected,

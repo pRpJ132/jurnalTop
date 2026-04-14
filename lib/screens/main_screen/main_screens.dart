@@ -25,24 +25,24 @@ class _MainscreensState extends State<Mainscreens> {
   int topcoins = 0;
   int topgems = 0;
 
-  final pageIndex = ValueNotifier<int>(0);
+  final pageIndex = ValueNotifier<String>("main");
 
-  List<Widget> pages = [
-    Mainscreen(),
-    SchedulesScreen(),
-    AssessmentsScreen(),
-    HomeworkScreen(),
-    SizedBox.fromSize(),
-    AdvertisementsScreen(),
-    AwardsScreen(),
-    ReviewsStudentScreen(),
-    PersonalAccountScreen(),
-    SizedBox.fromSize(),
-    SizedBox.fromSize(),
-    SizedBox.fromSize(),
-    SizedBox.fromSize(),
-    MarketScreen(),
-  ];
+  Map<String, Widget> pages = {
+    "main": Mainscreen(),
+    "schedule": SchedulesScreen(),
+    "grades": AssessmentsScreen(),
+    "homework": HomeworkScreen(),
+    "materials": SizedBox.fromSize(),
+    "announcements": AdvertisementsScreen(),
+    "awards": AwardsScreen(),
+    "feedback": ReviewsStudentScreen(),
+    "profile": PersonalAccountScreen(),
+    "faq": SizedBox.fromSize(),
+    "contacts": SizedBox.fromSize(),
+    "requests": SizedBox.fromSize(),
+    "complaints": SizedBox.fromSize(),
+    "market": MarketScreen(),
+  };
 
   Future<void> initUserData() async {
     final group = await UserStorage.getGroupName() ?? "Unknown";
@@ -162,13 +162,10 @@ class _MainscreensState extends State<Mainscreens> {
           ),
         ],
       ),
-      body: ValueListenableBuilder<int>(
+      body: ValueListenableBuilder<String>(
         valueListenable: pageIndex,
         builder: (context, data, _) {
-          if (data >= 0 && data < pages.length) {
-            return pages[data];
-          }
-          return SizedBox.shrink();
+          return pages[data] ?? SizedBox.shrink();
         }
       ),
     );
