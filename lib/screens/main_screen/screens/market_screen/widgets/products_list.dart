@@ -8,88 +8,82 @@ import 'package:skeletonizer/skeletonizer.dart';
 Widget buildProductList(
   final ValueNotifier<List<ProductStore>> productStore,
 ) {
-  return Expanded(
-    child: Consumer<Cart>(
-      builder: (_, cartValue, _) {
-        if (cartValue.isLoad) {
-          return Skeletonizer(
-            enabled: cartValue.isLoad,
-            child: Container(
-              color: Colors.white,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  int crossAxisCount = 2;
-                  if (constraints.maxWidth > 900) {
-                    crossAxisCount = 4;
-                  } else if (constraints.maxWidth > 600) {
-                    crossAxisCount = 3;
-                  }
-                  return GridView.builder(
-                    padding: const EdgeInsets.all(10),
-                    itemCount: productStore.value.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 0.65,
-                    ),
-                    itemBuilder: (context, index) {
-                      final product = productStore.value[index];
-                      return _buildCOntainerProduct(context, product, cartValue);
-                    },
-                  );
-                },
-              ),
-            ),
-          );
-        }
-        return ValueListenableBuilder(
-          valueListenable: productStore,
-          builder: (_, productStoreValue, _) {
-            if (productStoreValue.isEmpty) {
-              return Center(
-                child: Text(
-                  "Товары появятся здесь",
-                  style: TextStyle(color: Colors.grey),
+  return Consumer<Cart>(
+    builder: (_, cartValue, _) {
+      if (cartValue.isLoad) {
+        return Skeletonizer(
+          enabled: cartValue.isLoad,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              int crossAxisCount = 2;
+              if (constraints.maxWidth > 900) {
+                crossAxisCount = 4;
+              } else if (constraints.maxWidth > 600) {
+                crossAxisCount = 3;
+              }
+              return GridView.builder(
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(10),
+                itemCount: productStore.value.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 0.65,
                 ),
-              );
-            }
-        
-            return Container(
-              color: Colors.white,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  int crossAxisCount = 2;
-                  if (constraints.maxWidth > 900) {
-                    crossAxisCount = 4;
-                  } else if (constraints.maxWidth > 600) {
-                    crossAxisCount = 3;
-                  }
-                  return GridView.builder(
-                    padding: const EdgeInsets.all(10),
-                    itemCount: productStoreValue.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 0.65,
-                    ),
-                    itemBuilder: (context, index) {
-                      final product = productStoreValue[index];
-                      return _buildCOntainerProduct(context, product, cartValue);
-                    },
-                  );
+                itemBuilder: (context, index) {
+                  final product = productStore.value[index];
+                  return _buildContainerProduct(context, product, cartValue);
                 },
+              );
+            },
+          ),
+        );
+      }
+      return ValueListenableBuilder(
+        valueListenable: productStore,
+        builder: (_, productStoreValue, _) {
+          if (productStoreValue.isEmpty) {
+            return Center(
+              child: Text(
+                "Товары появятся здесь",
+                style: TextStyle(color: Colors.grey),
               ),
             );
           }
-        );
-      }
-    ),
+      
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              int crossAxisCount = 2;
+              if (constraints.maxWidth > 900) {
+                crossAxisCount = 4;
+              } else if (constraints.maxWidth > 600) {
+                crossAxisCount = 3;
+              }
+              return GridView.builder(
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(10),
+                itemCount: productStoreValue.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 0.65,
+                ),
+                itemBuilder: (context, index) {
+                  final product = productStoreValue[index];
+                  return _buildContainerProduct(context, product, cartValue);
+                },
+              );
+            },
+          );
+        }
+      );
+    }
   );
 }
 
-Widget _buildCOntainerProduct(
+Widget _buildContainerProduct(
   BuildContext context,
   ProductStore product,
   Cart cartValue

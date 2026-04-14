@@ -66,10 +66,11 @@ class _MarketScreenState extends State<MarketScreen> {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(8),
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Column(
+          mainAxisSize: .min,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -79,7 +80,7 @@ class _MarketScreenState extends State<MarketScreen> {
                 "Магазин".toUpperCase(),
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
-    
+          
                 Row(
                   spacing: 15,
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -97,112 +98,95 @@ class _MarketScreenState extends State<MarketScreen> {
                 ),
               ],
             ),
-    
+          
             const SizedBox(height: 20),
-    
+          
             Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: ValueListenableBuilder(
-                  valueListenable: _isLoading,
-                  builder: (_, isLoadingValue, _) {
-                    if(isLoadingValue && _productStore.value.isEmpty) {
-                      final newProductStore = ValueNotifier(List.generate(
-                        10,
-                        (int index) => ProductStore(
-                          id: index, 
-                          description: '----------', 
-                          vendorCode: '----------', 
-                          status: 0, 
-                          dynamicPriceStatus: 0, 
-                          title: '-----------------', 
-                          quantity: 10, 
-                          fileName: '', 
-                          url: ''
-                        ) 
-                      ));
-                      return Skeletonizer(
-                        enabled: true,
-                        child: Column(
-                          crossAxisAlignment: .end,
-                          children: [
-                            if (isMobile)
-                            PopupMenuButton<String>(
-                              initialValue: selectedValuePopMenu,
-                              onSelected: (value) => setState(() => selectedValuePopMenu = value),
-                              icon: const Icon(Icons.menu),
-                              color: Colors.white,
-                              elevation: 8,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: ValueListenableBuilder(
+                        valueListenable: _isLoading,
+                        builder: (_, isLoadingValue, _) {
+                          if(isLoadingValue && _productStore.value.isEmpty) {
+                            return Skeletonizer(
+                              enabled: true,
+                              child: Column(
+                                crossAxisAlignment: .end,
+                                children: [
+                                  if (isMobile)
+                                  PopupMenuButton<String>(
+                                    icon: const Icon(Icons.menu),
+                                    color: Colors.white,
+                                    elevation: 8,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    itemBuilder: (context) => [],
+                                  ),
+                                  buildProductList(ValueNotifier(List.generate(
+                                    10,
+                                    (int index) => ProductStore(
+                                      id: index, 
+                                      description: '----------', 
+                                      vendorCode: '----------', 
+                                      status: 0, 
+                                      dynamicPriceStatus: 0, 
+                                      title: '-----------------', 
+                                      quantity: 10, 
+                                      fileName: '', 
+                                      url: ''
+                                    ) 
+                                  )))
+                                ],
                               ),
-                              itemBuilder: (context) => [
-                                const PopupMenuItem(
-                                  value: "shop",
-                                  child: Text("Магазин"),
+                            );
+                          }
+                          return Column(
+                            crossAxisAlignment: .end,
+                            children: [
+                              if (isMobile)
+                              PopupMenuButton<String>(
+                                initialValue: selectedValuePopMenu,
+                                onSelected: (value) => setState(() => selectedValuePopMenu = value),
+                                icon: const Icon(Icons.menu),
+                                color: Colors.white,
+                                elevation: 8,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                                const PopupMenuItem(
-                                  value: "cart",
-                                  child: Text("Корзина"),
-                                ),
-                                const PopupMenuItem(
-                                  value: "orders",
-                                  child: Text("Мои покупки"),
-                                ),
-                              ],
-                            ),
-
-                            if (selectedValuePopMenu == "shop")
-                              buildProductList(newProductStore)
-                            else if (selectedValuePopMenu == "cart")
-                              buildCartList(newProductStore.value)
-                            else
-                              buildMyPurchases()
-                          ],
-                        ),
-                      );
-                    }
-                    return Column(
-                      crossAxisAlignment: .end,
-                      children: [
-                        if (isMobile)
-                        PopupMenuButton<String>(
-                          initialValue: selectedValuePopMenu,
-                          onSelected: (value) => setState(() => selectedValuePopMenu = value),
-                          icon: const Icon(Icons.menu),
-                          color: Colors.white,
-                          elevation: 8,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: "shop",
-                              child: Text("Магазин"),
-                            ),
-                            const PopupMenuItem(
-                              value: "cart",
-                              child: Text("Корзина"),
-                            ),
-                            const PopupMenuItem(
-                              value: "orders",
-                              child: Text("Мои покупки"),
-                            ),
-                          ],
-                        ),
-                        if (selectedValuePopMenu == "shop")
-                          buildProductList(_productStore)
-                        else if (selectedValuePopMenu == "cart")
-                          buildCartList(_productStore.value)
-                        else
-                          buildMyPurchases()
-                      ],
-                    );
-                  }
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: "shop",
+                                    child: Text("Магазин"),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: "cart",
+                                    child: Text("Корзина"),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: "orders",
+                                    child: Text("Мои покупки"),
+                                  ),
+                                ],
+                              ),
+                              if (selectedValuePopMenu == "shop")
+                                buildProductList(_productStore)
+                              else if (selectedValuePopMenu == "cart")
+                                buildCartList(_productStore.value)
+                              else
+                                buildMyPurchases()
+                            ],
+                          );
+                        }
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

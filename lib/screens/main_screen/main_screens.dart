@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/screens/login_screen.dart';
+import 'package:my_app/screens/main_screen/screens/FAQ_screen/FAQ_screen.dart';
 import 'package:my_app/screens/main_screen/screens/advertisements_screen/advertisements_screen.dart';
 import 'package:my_app/screens/main_screen/screens/assessments_screen/assessments_screen.dart';
 import 'package:my_app/screens/main_screen/screens/awards_screen/awards_screen.dart';
@@ -32,15 +33,11 @@ class _MainscreensState extends State<Mainscreens> {
     "schedule": SchedulesScreen(),
     "grades": AssessmentsScreen(),
     "homework": HomeworkScreen(),
-    "materials": SizedBox.fromSize(),
     "announcements": AdvertisementsScreen(),
     "awards": AwardsScreen(),
     "feedback": ReviewsStudentScreen(),
     "profile": PersonalAccountScreen(),
-    "faq": SizedBox.fromSize(),
-    "contacts": SizedBox.fromSize(),
-    "requests": SizedBox.fromSize(),
-    "complaints": SizedBox.fromSize(),
+    "faq": FaqScreen(),
     "market": MarketScreen(),
   };
 

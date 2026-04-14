@@ -44,6 +44,7 @@ class CustomDrawer extends StatelessWidget {
                 drawerItem(CupertinoIcons.bell_circle_fill, 'Объявления', "announcements", currentIndex, context),
                 drawerItem(CupertinoIcons.star_circle_fill, 'Награды', "awards", currentIndex, context),
                 drawerItem(CupertinoIcons.pencil_circle_fill, 'Отзывы о студенте', "feedback", currentIndex, context),
+                drawerItem(CupertinoIcons.creditcard_fill, 'Оплата', "payment", currentIndex, context),
                 drawerItem(CupertinoIcons.person_circle_fill, 'Личный кабинет', "profile", currentIndex, context),
                 drawerItem(CupertinoIcons.question_circle_fill, 'F.A.Q.', "faq", currentIndex, context),
                 drawerItem(CupertinoIcons.location_circle_fill, 'Контакты', "contacts", currentIndex, context),
