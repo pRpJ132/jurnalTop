@@ -1,0 +1,98 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
+class UserStorage {
+  static const _usernameKey = 'username';
+  static const _passwordKey = 'password';
+
+  static const _photoUrlKey = 'user_photo_url';
+  static const _fullNameKey = 'user_full_name';
+  static const _groupNameKey = 'group_name';
+  static const _groupIdKey = 'group_id';
+  static const _id = 'student_id';
+  static const _topcoins = 'topcoins';
+  static const _topgems = 'topgems';
+
+  static Future<void> saveUserInfo({
+    required dynamic data,
+
+    String? username,
+    String? password,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_fullNameKey, data['full_name']);
+    await prefs.setString(_photoUrlKey, data['photo']);
+    await prefs.setString(_groupNameKey, data["groups"][0]["name"]);
+    await prefs.setInt(_groupIdKey, data["groups"][0]["id"].toInt());
+    await prefs.setInt(_id, data["student_id"].toInt());
+    await prefs.setInt(_topcoins, data["gaming_points"][0]["points"].toInt());
+    await prefs.setInt(_topgems, data["gaming_points"][1]["points"].toInt());
+
+    if (username != null) await prefs.setString(_usernameKey, username);
+    if (password != null) await prefs.setString(_passwordKey, password);
+  }
+
+  static Future<bool?> isValidAllData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final fullName = prefs.getString(_fullNameKey);
+    final photoUrl = prefs.getString(_photoUrlKey);
+    final groupName = prefs.getString(_groupNameKey);
+    final id = prefs.getInt(_id);
+    final topcoins = prefs.getInt(_topcoins);
+    final topgems = prefs.getInt(_topgems);
+
+    if (fullName != null && photoUrl != null && groupName != null && id != null && topcoins != null && topgems != null) {
+      return true;
+    }
+    return false;
+  }
+
+  static Future<String?> getFullName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_fullNameKey);
+  }
+
+  static Future<int?> getId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_id);
+  }
+
+  static Future<String?> getGroupName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_groupNameKey);
+  }
+
+  static Future<int?> getGroupId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_groupIdKey);
+  }
+
+  static Future<String?> getPhotoUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_photoUrlKey);
+  }
+
+  static Future<int?> getTopCoins() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_topcoins);
+  }
+
+  static Future<int?> getTopGems() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_topgems);
+  }
+
+  static Future<String?> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_usernameKey);
+  }
+
+  static Future<String?> getPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_passwordKey);
+  }
+
+  static Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+}
