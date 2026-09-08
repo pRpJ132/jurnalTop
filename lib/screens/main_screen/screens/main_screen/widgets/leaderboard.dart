@@ -32,7 +32,10 @@ class _LeaderboardState extends State<Leaderboard>
 
   @override
   void dispose() {
+    _controller.dispose();
     _isLoading.dispose();
+    _listGroup.dispose();
+    _listStream.dispose();
     super.dispose();
   }
 
@@ -194,6 +197,7 @@ class _LeaderboardState extends State<Leaderboard>
 
   void _loadReitingInfo() async {
     try {
+      if (!mounted) return;
       _isLoading.value = true;
       final response = await ApiClient.get("dashboard/progress/leader-group");
       if (response.statusCode == 200) {
@@ -210,10 +214,10 @@ class _LeaderboardState extends State<Leaderboard>
       final meId = await UserStorage.getId();
 
       meUserId = meId ?? 0;
-
-      setState(() => meUserId);
     } finally {
-      _isLoading.value = false;
+      if (mounted) {
+        _isLoading.value = false;
+      }
     }
   }
 }

@@ -38,10 +38,13 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
     final dateFilter = DateFormat('yyyy-MM-dd').format(_currentMonth);
 
     try {
+
+      if (!mounted) return;
       _isLoading.value = true;
 
       final scheduleHistorys = await dbScheduleHistory.getScheduleHistory(dateFilter);
 
+      if (!mounted) return;
       if (scheduleHistorys.isNotEmpty) {
         _schedules.value = scheduleHistorys;
         _isLoading.value = false;
@@ -57,11 +60,11 @@ class _SchedulesScreenState extends State<SchedulesScreen> {
 
         _schedules.value = dt;
         dbScheduleHistory.saveScheduleHistory(dt);
-      } else {
-        _schedules.value = scheduleHistorys;
       }
     } finally {
-      _isLoading.value = false;
+      if (mounted) {
+        _isLoading.value = false;
+      }
     }
   }
 

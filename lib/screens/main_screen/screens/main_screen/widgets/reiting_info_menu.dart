@@ -89,6 +89,7 @@ class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
 
   void _loadReitingInfo() async {
     try {
+      if (!mounted) return;
       _isLoading.value = true;
       final response = await ApiClient.get("dashboard/progress/leader-group-points");
       if (response.statusCode == 200) {
@@ -102,7 +103,9 @@ class _ReitingInfoMenuState extends State<ReitingInfoMenu> {
         _positionStream.value = data["studentPosition"].toInt();
       }
     } finally {
-      _isLoading.value = false;
+      if (mounted) {
+        _isLoading.value = false;
+      }
     }
   }
 }
