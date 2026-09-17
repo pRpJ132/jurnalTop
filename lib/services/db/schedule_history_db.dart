@@ -39,23 +39,49 @@ class ScheduleHistoryDatabase {
   }
 
   Future<void> saveScheduleHistory(List<DayLessons> dt) async {
+    if (dt.isEmpty) return;
+
     final db = await database;
 
-    for (DayLessons product in dt) {
-      await db.insert(
-        'schedule_history', 
-        {
-          'date': product.date,
-          'lesson': product.lesson,
-          'started_at': product.startedAt,
-          'finished_at': product.finishedAt,
-          'subject_name': product.subjectName,
-          'teacher_name': product.teacherName,
-          'room_name': product.roomName
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
+    final firstDate = DateTime.parse(dt.first.date);
+    final year = firstDate.year;
+    final month = firstDate.month;
+
+    final nextMonth = month == 12
+        ? DateTime(year + 1, 1, 1)
+        : DateTime(year, month + 1, 1);
+
+    final nextMonthString =
+        '${nextMonth.year.toString().padLeft(4, '0')}-'
+        '${nextMonth.month.toString().padLeft(2, '0')}-01';
+
+    final monthString =
+        '${year.toString().padLeft(4, '0')}-'
+        '${month.toString().padLeft(2, '0')}-01';
+
+    await db.transaction((txn) async {
+      await txn.delete(
+        'schedule_history',
+        where: 'date >= ? AND date < ?',
+        whereArgs: [monthString, nextMonthString],
       );
-    }
+
+      for (final lesson in dt) {
+        await txn.insert(
+          'schedule_history',
+          {
+            'date': lesson.date,
+            'lesson': lesson.lesson,
+            'started_at': lesson.startedAt,
+            'finished_at': lesson.finishedAt,
+            'subject_name': lesson.subjectName,
+            'teacher_name': lesson.teacherName,
+            'room_name': lesson.roomName,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+    });
   }
 
   Future<List<DayLessons>> getScheduleHistory(String date) async {
