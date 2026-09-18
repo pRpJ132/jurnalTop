@@ -182,7 +182,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -239,7 +239,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                     return !isLoadingPageValue ? Text(
                       "Показать еще",
                       style: TextStyle(
-                        color: const Color.fromARGB(255, 26, 159, 243)
+                        color: const Color.fromARGB(255, 2, 157, 235)
                       ),
                     ) : CircularProgressIndicator();
                   }
@@ -289,131 +289,129 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ValueListenableBuilder(
-        valueListenable: _isLoading,
-        builder: (_, isLoadingValue, _) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              mainAxisSize: .min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 7, bottom: 10),
-                  child: Text(
-                    "Домашние задания".toUpperCase(),
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
+    return ValueListenableBuilder(
+      valueListenable: _isLoading,
+      builder: (_, isLoadingValue, _) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            mainAxisSize: .min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 7, bottom: 10),
+                child: Text(
+                  "Домашние задания".toUpperCase(),
+                  style: Theme.of(context).textTheme.headlineLarge,
                 ),
-          
-                Skeletonizer(
-                  enabled: (isLoadingValue && _homeworkCounts.value.isEmpty),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ValueListenableBuilder(
-                        valueListenable: nameSpaces,
-                        builder: (_, nameSpacesVal, _) => ValueListenableBuilder(
-                          valueListenable: selectedItem,
-                          builder: (_, selectedItemValue, _) {
-                            return PopupMenuButton<int>(
-                              popUpAnimationStyle: AnimationStyle(
-                                duration: Duration(milliseconds: 350),
-                                curve: Curves.easeOut,
-                                reverseCurve: Curves.easeIn,
-                                reverseDuration: Duration(milliseconds: 100)
-                              ),
-                              initialValue: selectedItemValue.specId,
-                              onSelected: (int specId) {
-                                selectedItem.value = nameSpacesVal.firstWhere((el) => el.specId == specId);
-                                pageByStatus = {
-                                  0: 1,
-                                  1: 1,
-                                  2: 1,
-                                  3: 1,
-                                };
-                                _loadAll();
-                              },
-                              constraints: BoxConstraints(
-                                maxHeight: 450,
-                                maxWidth: 250
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              color: Colors.white,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
-                                constraints: BoxConstraints(
-                                  maxWidth: 200.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(255, 255, 255, 255),
-                                  borderRadius: BorderRadius.circular(16)
-                                ),
-                                child: Text(
-                                  selectedItemValue.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              itemBuilder: (BuildContext context) {
-                                return nameSpacesVal.map((el) {
-                                  return PopupMenuItem<int>(
-                                    value: el.specId,
-                                    child: Text(el.name),
-                                  );
-                                }).toList();
-                              },
-                            );
-                          }
-                        ),
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: _typeSpace,
-                        builder: (_, typeSpaceValue, _) {
-                          return Flexible(
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                overlayColor: Colors.white
-                              ),
-                              onPressed: ()  {
-                                _typeSpace.value == 0 ? _typeSpace.value = 1 : _typeSpace.value = 0;
-                                pageByStatus = {
-                                  0: 1,
-                                  1: 1,
-                                  2: 1,
-                                  3: 1,
-                                };
-                                _loadAll();
-                              }, 
-                              child: Text(
-                                typeSpaceValue == 0 ? "Лабораторные работы" : "Домашние задания",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 13,
-                                ),
-                              )
+              ),
+        
+              Skeletonizer(
+                enabled: (isLoadingValue && _homeworkCounts.value.isEmpty),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ValueListenableBuilder(
+                      valueListenable: nameSpaces,
+                      builder: (_, nameSpacesVal, _) => ValueListenableBuilder(
+                        valueListenable: selectedItem,
+                        builder: (_, selectedItemValue, _) {
+                          return PopupMenuButton<int>(
+                            popUpAnimationStyle: AnimationStyle(
+                              duration: Duration(milliseconds: 350),
+                              curve: Curves.easeOut,
+                              reverseCurve: Curves.easeIn,
+                              reverseDuration: Duration(milliseconds: 100)
                             ),
+                            initialValue: selectedItemValue.specId,
+                            onSelected: (int specId) {
+                              selectedItem.value = nameSpacesVal.firstWhere((el) => el.specId == specId);
+                              pageByStatus = {
+                                0: 1,
+                                1: 1,
+                                2: 1,
+                                3: 1,
+                              };
+                              _loadAll();
+                            },
+                            constraints: BoxConstraints(
+                              maxHeight: 450,
+                              maxWidth: 250
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            color: Colors.white,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                              constraints: BoxConstraints(
+                                maxWidth: 200.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                                borderRadius: BorderRadius.circular(16)
+                              ),
+                              child: Text(
+                                selectedItemValue.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            itemBuilder: (BuildContext context) {
+                              return nameSpacesVal.map((el) {
+                                return PopupMenuItem<int>(
+                                  value: el.specId,
+                                  child: Text(el.name),
+                                );
+                              }).toList();
+                            },
                           );
                         }
                       ),
-                    ],
-                  ),
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: _typeSpace,
+                      builder: (_, typeSpaceValue, _) {
+                        return Flexible(
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              overlayColor: Colors.white
+                            ),
+                            onPressed: ()  {
+                              _typeSpace.value == 0 ? _typeSpace.value = 1 : _typeSpace.value = 0;
+                              pageByStatus = {
+                                0: 1,
+                                1: 1,
+                                2: 1,
+                                3: 1,
+                              };
+                              _loadAll();
+                            }, 
+                            child: Text(
+                              typeSpaceValue == 0 ? "Лабораторные работы" : "Домашние задания",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 13,
+                              ),
+                            )
+                          ),
+                        );
+                      }
+                    ),
+                  ],
                 ),
+              ),
+        
+              SizedBox(height: 20),
           
-                SizedBox(height: 20),
-            
-                Skeletonizer(
-                  enabled: (isLoadingValue && _homeworkCounts.value.isEmpty),
-                  child: _buildTabBody()
-                ),
-              ],
-            ),
-          );
-        }
-      ),
+              Skeletonizer(
+                enabled: (isLoadingValue && _homeworkCounts.value.isEmpty),
+                child: _buildTabBody()
+              ),
+            ],
+          ),
+        );
+      }
     );
   }
 }

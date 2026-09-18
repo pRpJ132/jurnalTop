@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/models/student/student_visits.dart';
 import 'package:my_app/network/api_client.dart';
@@ -214,10 +214,10 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
                   valueListenable: _assessments,
                   builder: (_, assessmentsValue, _) {
                     return GridView.builder(
+                      scrollCacheExtent: ScrollCacheExtent.pixels(300), 
                       shrinkWrap: true,
                       padding: const EdgeInsets.all(8),
                       itemCount: assessmentsValue.length,
-                      cacheExtent: 300,
                       gridDelegate:
                           SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount:

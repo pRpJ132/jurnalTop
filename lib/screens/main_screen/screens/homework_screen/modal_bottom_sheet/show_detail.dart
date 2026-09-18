@@ -21,7 +21,7 @@ void showDetail(BuildContext context, HomeworkItem e) {
       return DraggableScrollableSheet(
         initialChildSize: 0.4,
         minChildSize: 0.2,
-        maxChildSize: 0.75,
+        maxChildSize: 0.85,
         expand: false,
         builder: (_, controller) {
           return Container(
@@ -55,9 +55,9 @@ void showDetail(BuildContext context, HomeworkItem e) {
                             margin: const EdgeInsets.symmetric(vertical: 8),
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                             decoration: BoxDecoration(
-                              color: color.withOpacity(0.12),
+                              color: color.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: color.withOpacity(0.3)),
+                              border: Border.all(color: color.withValues(alpha: 0.3)),
                             ),
                             child: Row(
                               mainAxisAlignment: .center,
@@ -109,7 +109,6 @@ void showDetail(BuildContext context, HomeworkItem e) {
                               ],
                             ),
                             const Divider(height: 28),
-                        
                             detailRow(
                               Icons.person_outline,
                               Colors.grey,
@@ -159,7 +158,7 @@ void showDetail(BuildContext context, HomeworkItem e) {
                             if (stud != null) ...[
                               const Divider(height: 28),
                               const Text(
-                                "Ваш ответ",
+                                "Ваш результат",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
@@ -262,6 +261,23 @@ void showDetail(BuildContext context, HomeworkItem e) {
                                   },
                                   child: Text(
                                     "Загрузить задание",
+                                    style: TextStyle(
+                                      color: Colors.white
+                                    ),
+                                  )
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 18.0),
+                              child: Center(
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(255, 33, 138, 203)
+                                  ),
+                                  onPressed: () async {},
+                                  child: Text(
+                                    "Сделать с помощью AI",
                                     style: TextStyle(
                                       color: Colors.white
                                     ),

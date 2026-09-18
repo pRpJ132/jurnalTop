@@ -7,6 +7,7 @@ part of 'homework.dart';
 // **************************************************************************
 
 HomeworkItem _$HomeworkItemFromJson(Map<String, dynamic> json) => HomeworkItem(
+  id: json['id'] as int,
   comment: json['comment'] as String,
   nameSpec: json['name_spec'] as String,
   fioTeach: json['fio_teach'] as String,
@@ -34,6 +35,7 @@ HomeworkItem _$HomeworkItemFromJson(Map<String, dynamic> json) => HomeworkItem(
 
 Map<String, dynamic> _$HomeworkItemToJson(HomeworkItem instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'comment': instance.comment,
       'name_spec': instance.nameSpec,
       'fio_teach': instance.fioTeach,

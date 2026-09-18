@@ -6,6 +6,7 @@ part 'homework.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class HomeworkItem {
+  int id;
   String comment;
   String nameSpec;
   String fioTeach;
@@ -19,6 +20,7 @@ class HomeworkItem {
   String? filePath;
 
   HomeworkItem({
+    required this.id,
     required this.comment,
     required this.nameSpec,
     required this.fioTeach,
